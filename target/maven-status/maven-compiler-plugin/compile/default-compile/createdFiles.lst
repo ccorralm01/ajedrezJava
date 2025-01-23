@@ -1,0 +1,6 @@
+com\mycompany\ajedrez\Game.class
+com\mycompany\ajedrez\Pieces\Pawn.class
+com\mycompany\ajedrez\Board.class
+com\mycompany\ajedrez\Ajedrez.class
+com\mycompany\ajedrez\Piece.class
+com\mycompany\ajedrez\GUI.class
