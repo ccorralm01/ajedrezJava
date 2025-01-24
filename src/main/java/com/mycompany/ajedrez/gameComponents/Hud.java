@@ -4,9 +4,9 @@ import java.awt.image.BufferedImage;
 
 public class Hud {
     // Constantes para los tipos de piezas
-    public static final int KILL = 0;   // Torre
-    public static final int MOVE = 1; // Caballo
-    public static final int SELECTED = 2; // Alfil
+    public static final int KILL = 0;
+    public static final int MOVE = 1;
+    public static final int SELECTED = 2;
     public static final int LINE = 5;
 
 

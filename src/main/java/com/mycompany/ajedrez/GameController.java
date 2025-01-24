@@ -113,11 +113,15 @@ public class GameController {
                 clearSelection();
                 System.out.println("Movimiento válido: " + selectedPiece.getSymbol() + " a (" + y + ", " + x + ")");
 
+
+                // TODO
+
                 // Crear el objeto Request
                 // Request request = new Request(room.getHost(), room.getRoomName(), room.getRoomPassword(), selectedPiece, selectedY, selectedX, y, x);
 
                 // Enviar el objeto Request al servidor
                 // cliente.sendRequestToServer(request);
+
             }
         } else {
             System.out.println("Movimiento inválido.");

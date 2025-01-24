@@ -20,7 +20,6 @@ public class BoardPanel extends JPanel {
         this.board = board;
         this.spriteManager = spriteManager;
         setPreferredSize(new Dimension(768, 832)); // Tamaño del tablero (12x12 casillas de 64x64 px)
-        setBackground(new Color(173, 216, 230)); // Color azul pastel
     }
 
     /**

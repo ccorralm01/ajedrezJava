@@ -29,9 +29,6 @@ public class Board {
 
     private void initializeBoard() {
         // Colocar las piezas blancas
-
-
-
         board[0][0] = new Rook("blanco", spriteManager.getPieceSprite(Piece.WHITE, Piece.ROOK));
         board[0][1] = new Knight("blanco", spriteManager.getPieceSprite(Piece.WHITE, Piece.KNIGHT));
         board[0][2] = new Bishop("blanco", spriteManager.getPieceSprite(Piece.WHITE, Piece.BISHOP));
