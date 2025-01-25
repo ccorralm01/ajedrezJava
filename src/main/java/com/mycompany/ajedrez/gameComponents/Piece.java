@@ -55,6 +55,8 @@ public abstract class Piece implements Serializable {
 
     public abstract boolean isValidMove(int startX, int startY, int endX, int endY, Board board);
 
+
+
     @Override
     public String toString() {
         return "Piece{" +

@@ -32,15 +32,14 @@ public class Board {
         board[0][0] = new Rook("blanco", spriteManager.getPieceSprite(Piece.WHITE, Piece.ROOK));
         board[0][1] = new Knight("blanco", spriteManager.getPieceSprite(Piece.WHITE, Piece.KNIGHT));
         board[0][2] = new Bishop("blanco", spriteManager.getPieceSprite(Piece.WHITE, Piece.BISHOP));
-        board[0][3] = new Queen("blanco", spriteManager.getPieceSprite(Piece.WHITE, Piece.QUEEN));
-        board[0][4] = new King("blanco", spriteManager.getPieceSprite(Piece.WHITE, Piece.KING));
+        board[0][4] = new King("blanco", spriteManager.getPieceSprite(Piece.WHITE, Piece.QUEEN));
+        board[0][3] = new Queen("blanco", spriteManager.getPieceSprite(Piece.WHITE, Piece.KING));
         board[0][5] = new Bishop("blanco", spriteManager.getPieceSprite(Piece.WHITE, Piece.BISHOP));
         board[0][6] = new Knight("blanco", spriteManager.getPieceSprite(Piece.WHITE, Piece.KNIGHT));
         board[0][7] = new Rook("blanco", spriteManager.getPieceSprite(Piece.WHITE, Piece.ROOK));
         for (int i = 0; i < 8; i++) {
             board[1][i] = new Pawn("blanco", spriteManager.getPieceSprite(Piece.WHITE, Piece.PAWN));
         }
-
 
         // Colocar las piezas negras
         board[7][0] = new Rook("negro", spriteManager.getPieceSprite(Piece.BLACK, Piece.ROOK));

@@ -3,6 +3,7 @@ package com.mycompany.ajedrez.panels;
 import com.mycompany.ajedrez.managers.SpriteManager;
 import com.mycompany.ajedrez.menuComponents.Background;
 import com.mycompany.ajedrez.menuComponents.MenuComponent;
+import com.mycompany.ajedrez.menuComponents.UIUtils;
 
 import javax.swing.*;
 import javax.swing.text.AttributeSet;
@@ -11,13 +12,12 @@ import javax.swing.text.PlainDocument;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Properties;
 
 public class OptionPanel extends JPanel {
     private Background background;
@@ -46,8 +46,8 @@ public class OptionPanel extends JPanel {
         input2 = new MenuComponent(spriteManager, MenuComponent.SIMPLE, "", 7, MenuComponent.TITLE, 72, 6);
 
         // Crear los JTextField para la entrada de texto
-        inputIp = crearInput("IP DEL SERVIDOR");
-        inputPuerto = crearInput("PUERTO DEL SERVIDOR");
+        inputIp = UIUtils.crearInput("IP DEL SERVIDOR", 17);
+        inputPuerto = UIUtils.crearInput("PUERTO DEL SERVIDOR", 17);
 
         // Cargar los datos guardados (si existen)
         cargarDatosGuardados();
@@ -74,88 +74,72 @@ public class OptionPanel extends JPanel {
         });
     }
 
-    // Método para cargar los datos guardados desde el archivo
     private void cargarDatosGuardados() {
-        try {
-            Path path = Paths.get(SERVER_DATA_PATH);
-            if (Files.exists(path)) { // Verificar si el archivo existe
-                BufferedReader reader = Files.newBufferedReader(path);
-                String ip = reader.readLine(); // Leer la primera línea (IP)
-                String puerto = reader.readLine(); // Leer la segunda línea (Puerto)
-                reader.close();
+        Properties props = new Properties();
+        Path path = Paths.get(SERVER_DATA_PATH);
 
-                if (ip != null && puerto != null) {
-                    inputIp.setText(ip); // Establecer la IP en el campo de texto
-                    inputPuerto.setText(puerto); // Establecer el puerto en el campo de texto
-                }
+        // Si el archivo no existe, crearlo con valores por defecto
+        if (!Files.exists(path)) {
+            props.setProperty("ip", "127.0.0.1"); // IP por defecto
+            props.setProperty("puerto", "5000");  // Puerto por defecto
+
+            try (OutputStream output = Files.newOutputStream(path)) {
+                props.store(output, "Server Configuration"); // Crear el archivo con valores por defecto
+            } catch (IOException e) {
+                System.err.println("Error al crear el archivo de configuración: " + e.getMessage());
             }
+        }
+
+        // Cargar los datos desde el archivo (ya sea el recién creado o uno existente)
+        try (InputStream input = Files.newInputStream(path)) {
+            props.load(input); // Cargar las propiedades desde el archivo
+
+            // Obtener los valores de las propiedades
+            String ip = props.getProperty("ip", "127.0.0.1"); // Valor por defecto si no existe
+            String puerto = props.getProperty("puerto", "5000"); // Valor por defecto si no existe
+
+            // Establecer los valores en los campos de texto
+            inputIp.setText(ip);
+            inputPuerto.setText(puerto);
         } catch (IOException e) {
             System.err.println("Error al leer el archivo de configuración: " + e.getMessage());
         }
     }
 
-    // Método para guardar los datos en el archivo
     private void guardarDatos(String ip, String puerto) {
+        Properties props = new Properties();
+        props.setProperty("ip", ip);
+        props.setProperty("puerto", puerto);
+
         Path path = Paths.get(SERVER_DATA_PATH);
-        try (BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-            writer.write(ip + "\n"); // Escribir la IP
-            writer.write(puerto + "\n"); // Escribir el puerto
+        try (OutputStream output = Files.newOutputStream(path)) {
+            props.store(output, "Server Configuration");
         } catch (IOException e) {
             System.err.println("Error al guardar el archivo de configuración: " + e.getMessage());
         }
     }
 
     private void aceptarConfiguracion() {
-        // Obtener los valores de los inputs
         String ip = inputIp.getText().trim();
         String puerto = inputPuerto.getText().trim();
 
-        // Validar que los campos no estén vacíos
         if (ip.isEmpty() || puerto.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Todos los campos son obligatorios.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        // Validar el formato de la IP
         if (!validarIP(ip)) {
             JOptionPane.showMessageDialog(this, "La IP no tiene un formato válido.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        // Validar el puerto
         if (!validarPuerto(puerto)) {
             JOptionPane.showMessageDialog(this, "El puerto debe ser un número entre 0 y 65535.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        // Guardar los datos en el archivo
         guardarDatos(ip, puerto);
-
-        // Si los inputs son válidos, procesar la configuración
-        System.out.println("IP del servidor: " + ip);
-        System.out.println("Puerto del servidor: " + puerto);
-        volverAMenuPrincipal(); // Volver al menú principal
-        // Aquí puedes agregar la lógica para guardar la configuración o cambiar de panel
-    }
-    private JTextField crearInput(String placeholder) {
-        JTextField input = new JTextField(placeholder);
-        input.setFont(new Font("minimalPixel", Font.PLAIN, 48)); // Fuente más grande
-        input.setForeground(Color.WHITE); // Color del texto
-        input.setBackground(new Color(0, 0, 0, 0)); // Fondo transparente
-        input.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10)); // Espaciado interno
-        input.setOpaque(false); // Hacer el JTextField transparente
-
-        // Limitar el número máximo de caracteres a 17
-        input.setDocument(new PlainDocument() {
-            @Override
-            public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
-                if ((getLength() + str.length()) <= 17) { // Permitir solo 17 caracteres
-                    super.insertString(offs, str, a);
-                }
-            }
-        });
-
-        return input;
+        volverAMenuPrincipal();
     }
 
     private void handleButtonPress(int mouseX, int mouseY) {

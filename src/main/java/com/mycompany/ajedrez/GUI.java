@@ -1,10 +1,12 @@
 package com.mycompany.ajedrez;
 
 import com.mycompany.ajedrez.gameComponents.Board;
+import com.mycompany.ajedrez.gameComponents.Captures;
 import com.mycompany.ajedrez.managers.AnimationManager;
 import com.mycompany.ajedrez.managers.SpriteManager;
 import com.mycompany.ajedrez.menuComponents.MenuComponent;
 import com.mycompany.ajedrez.panels.BoardPanel;
+import com.mycompany.ajedrez.panels.CapturesPanel;
 import com.mycompany.ajedrez.panels.HudPanel;
 
 import javax.swing.*;
@@ -19,24 +21,40 @@ public class GUI extends JFrame {
         // Iniciar el juego con los datos ingresados
         SpriteManager spriteManager = new SpriteManager("src/res/Board.png", "src/res/pieces.png", "src/res/menu.png");
         Board board = new Board(spriteManager);
+        Captures captures = new Captures(spriteManager); // Crear el objeto Captures
         setResizable(false);
 
         // Crear paneles
         BoardPanel boardPanel = new BoardPanel(board, spriteManager);
         HudPanel hudPanel = new HudPanel(spriteManager);
+        CapturesPanel capturesPanel = new CapturesPanel(captures, spriteManager); // Crear el CapturesPanel
 
-        // Configurar layout
-        JLayeredPane layeredPane = new JLayeredPane();
-        layeredPane.setPreferredSize(new Dimension(768, 832)); // Tamaño del tablero
+        // Configurar el JLayeredPane para el tablero y el HUD
+        JLayeredPane layeredPane = new JLayeredPane() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                // Dibujar un color de fondo sólido (#C58557)
+                g.setColor(new Color(0xC5, 0x85, 0x57)); // Color #C58557
+                g.fillRect(0, 0, getWidth(), getHeight());
+            }
+        };
+        layeredPane.setPreferredSize(new Dimension(896, 832)); // Tamaño total: 896x832 (768 + 128 de ancho)
 
-        // Añadir paneles al JLayeredPane
-        boardPanel.setBounds(0, 0, 768, 832); // Establecer posición y tamaño del BoardPanel
-        hudPanel.setBounds(0, 0, 768, 832);   // Establecer posición y tamaño del HudPanel
-        boardPanel.setOpaque(false);
-        hudPanel.setOpaque(false);
+        // Añadir BoardPanel al JLayeredPane
+        boardPanel.setBounds(0, 0, 768, 768); // BoardPanel ocupa 768x768px
+        boardPanel.setOpaque(false); // Hacer transparente
+        layeredPane.add(boardPanel, JLayeredPane.DEFAULT_LAYER); // Capa intermedia
 
-        layeredPane.add(boardPanel, JLayeredPane.DEFAULT_LAYER);
-        layeredPane.add(hudPanel, JLayeredPane.PALETTE_LAYER);
+        // Añadir HudPanel al JLayeredPane
+        hudPanel.setBounds(0, 0, 768, 768); // HudPanel se superpone al BoardPanel
+        hudPanel.setOpaque(false); // Hacer transparente
+        layeredPane.add(hudPanel, JLayeredPane.PALETTE_LAYER); // Capa superior
+
+        // Añadir CapturesPanel a la derecha del BoardPanel
+        capturesPanel.setBounds(768, 0, 128, 768); // CapturesPanel en los siguientes 128px de ancho
+        capturesPanel.setOpaque(false); // Hacer transparente
+        layeredPane.add(capturesPanel, JLayeredPane.PALETTE_LAYER); // Capa superior
 
         // Crear el botón "SALIR"
         botonSalir = new MenuComponent(spriteManager, MenuComponent.SIMPLE, "SALIR", 7, MenuComponent.BUTTON2, 72, 6);
@@ -50,23 +68,22 @@ public class GUI extends JFrame {
                 botonSalir.draw(g, 0, 0, 64); // Tamaño de cada tile (64x64 píxeles)
             }
         };
+        botonSalirPanel.setOpaque(false); // Hacer transparente
 
-        // Posicionar el botón debajo del tablero
-        int botonX = (768 - (botonSalir.getGridCols() * 64)) / 2; // Centrar horizontalmente
-        int botonY = 832 + 20; // Colocar debajo del tablero (832 es la altura del tablero)
-        botonSalirPanel.setBounds(botonX, botonY, botonSalir.getGridCols() * 64, 64); // Tamaño basado en gridCols
+        // Calcular la posición centrada del botón
+        int botonWidth = botonSalir.getGridCols() * 64; // Ancho del botón (7 columnas x 64px)
+        int botonX = (896 - botonWidth) / 2; // Centrar horizontalmente
+        int botonY = 768; // Posición vertical debajo del BoardPanel y CapturesPanel
 
-        // Añadir el panel del botón al JLayeredPane
-        layeredPane.add(botonSalirPanel, JLayeredPane.PALETTE_LAYER);
-
-        // Ajustar el tamaño del JLayeredPane para incluir el botón
-        layeredPane.setPreferredSize(new Dimension(768, 832 + 84)); // 832 (tablero) + 84 (espacio para el botón)
+        // Posicionar el botón centrado
+        botonSalirPanel.setBounds(botonX, botonY, botonWidth, 64); // Tamaño basado en gridCols
+        layeredPane.add(botonSalirPanel, JLayeredPane.PALETTE_LAYER); // Capa superior
 
         // Añadir el JLayeredPane al JFrame
         add(layeredPane);
 
         // Inicializar controlador y animación
-        GameController gameController = new GameController(board, boardPanel, hudPanel, spriteManager);
+        GameController gameController = new GameController(board, boardPanel, hudPanel, capturesPanel,spriteManager);
         AnimationManager animationManager = new AnimationManager(hudPanel);
 
         // Configurar ventana

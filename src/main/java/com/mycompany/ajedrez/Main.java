@@ -16,7 +16,6 @@ public class Main {
         JFrame frame = new JFrame("PIXEL CHESS");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
-        frame.getContentPane().setBackground(new Color(173, 216, 230));
         frame.setResizable(false);
 
         // Crear el panel del menú

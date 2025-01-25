@@ -3,6 +3,7 @@ package com.mycompany.ajedrez;
 import com.mycompany.ajedrez.gameComponents.Board;
 import com.mycompany.ajedrez.gameComponents.Hud;
 import com.mycompany.ajedrez.gameComponents.Piece;
+import com.mycompany.ajedrez.panels.CapturesPanel;
 import com.mycompany.ajedrez.server.Request;
 import com.mycompany.ajedrez.managers.AnimationManager;
 import com.mycompany.ajedrez.managers.SpriteManager;
@@ -10,11 +11,12 @@ import com.mycompany.ajedrez.panels.BoardPanel;
 import com.mycompany.ajedrez.panels.HudPanel;
 import com.mycompany.ajedrez.server.Room;
 
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.awt.Point;
 
 public class GameController {
     private Board board;
@@ -26,14 +28,13 @@ public class GameController {
     private List<Point> validMoves = new ArrayList<>();
     private List<Point> killMoves = new ArrayList<>();
     private AnimationManager animationManager;
-    private Cliente cliente;
-    private Room room;
+    private CapturesPanel capturesPanel; // Referencia al CapturesPanel
 
-    public GameController(Board board, BoardPanel boardPanel, HudPanel hudPanel, SpriteManager spriteManager) {
-        this.cliente = new Cliente();
+    public GameController(Board board, BoardPanel boardPanel, HudPanel hudPanel, CapturesPanel capturesPanel, SpriteManager spriteManager) {
         this.board = board;
         this.boardPanel = boardPanel;
         this.hudPanel = hudPanel;
+        this.capturesPanel = capturesPanel; // Inicializar CapturesPanel
         this.spriteManager = spriteManager;
         this.animationManager = new AnimationManager(hudPanel); // Inicializar AnimationManager
         initMouseListener();
@@ -109,24 +110,72 @@ public class GameController {
         if (isValidMove(y, x)) {
             Piece selectedPiece = board.getPiece(selectedY, selectedX);
             if (selectedPiece != null) {
+                // Verificar si hay una pieza en la casilla de destino
+                Piece targetPiece = board.getPiece(y, x);
+                if (targetPiece != null && !targetPiece.getColor().equals(selectedPiece.getColor())) {
+                    // Incrementar el contador de capturas
+                    capturesPanel.getCaptures().incrementCaptureCount(targetPiece);
+                    capturesPanel.repaint(); // Redibujar el CapturesPanel
+
+                    System.out.println("Target : " + targetPiece.getType());
+                    System.out.println("Piece : " + selectedPiece.getType());
+
+                    // Verificar si la pieza capturada es un rey
+                    if (targetPiece.getType() == Piece.KING) { // Solo si es un rey
+                        // Mover la pieza primero
+                        board.movePiece(selectedY, selectedX, y, x);
+                        clearSelection();
+                        System.out.println("Movimiento válido: " + selectedPiece.getSymbol() + " a (" + y + ", " + x + ")");
+
+                        // Luego terminar el juego
+                        endGame(selectedPiece.getColor()); // Terminar la partida
+                        return; // Salir del método para evitar más movimientos
+                    }
+                }
+
+                // Mover la pieza si no se capturó un rey
                 board.movePiece(selectedY, selectedX, y, x);
                 clearSelection();
                 System.out.println("Movimiento válido: " + selectedPiece.getSymbol() + " a (" + y + ", " + x + ")");
 
-
-                // TODO
-
-                // Crear el objeto Request
-                // Request request = new Request(room.getHost(), room.getRoomName(), room.getRoomPassword(), selectedPiece, selectedY, selectedX, y, x);
-
-                // Enviar el objeto Request al servidor
-                // cliente.sendRequestToServer(request);
-
+                // TODO: Enviar el movimiento al servidor
             }
         } else {
             System.out.println("Movimiento inválido.");
             clearSelection();
         }
+    }
+
+    private void endGame(String winningColor) {
+        // Crear un JDialog para mostrar la imagen de victoria
+        JDialog victoryDialog = new JDialog();
+        victoryDialog.setModal(false); // Diálogo no modal
+        victoryDialog.setUndecorated(true); // Eliminar la barra de título
+        victoryDialog.setBackground(new Color(0, 0, 0, 0)); // Fondo transparente
+
+        // Cargar la imagen de victoria
+        Image originalImage = spriteManager.getVictoryImage(winningColor);
+
+        // Definir el nuevo tamaño deseado (por ejemplo, el doble del tamaño original)
+        int newWidth = originalImage.getWidth(null) * 15; // Aumentar el ancho al doble
+        int newHeight = originalImage.getHeight(null) * 15; // Aumentar la altura al doble
+
+        // Escalar la imagen
+        Image scaledImage = originalImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
+
+        // Crear un ImageIcon con la imagen escalada
+        ImageIcon victoryIcon = new ImageIcon(scaledImage);
+        JLabel victoryLabel = new JLabel(victoryIcon);
+        victoryDialog.add(victoryLabel);
+
+        // Centrar el diálogo en la pantalla
+        victoryDialog.pack();
+        victoryDialog.setLocationRelativeTo(null); // Centrar en la pantalla
+        victoryDialog.setVisible(true);
+
+        // Deshabilitar el tablero
+        boardPanel.setEnabled(false);
+        setMyTurn(false);
     }
 
     private void clearSelection() {
@@ -210,9 +259,5 @@ public class GameController {
             clearSelection();
         }
         System.out.println("Es tu turno: " + myTurn);
-    }
-
-    public void setRoom(Room room) {
-        this.room = room;
     }
 }

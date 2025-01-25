@@ -4,6 +4,7 @@ import com.mycompany.ajedrez.GUI;
 import com.mycompany.ajedrez.managers.SpriteManager;
 import com.mycompany.ajedrez.menuComponents.Background;
 import com.mycompany.ajedrez.menuComponents.MenuComponent;
+import com.mycompany.ajedrez.menuComponents.UIUtils;
 
 import javax.swing.*;
 import javax.swing.text.AttributeSet;
@@ -41,9 +42,9 @@ public class MultijugadorPanel extends JPanel {
         input3 = new MenuComponent(spriteManager, MenuComponent.SIMPLE, "", 7, MenuComponent.TITLE, 72, 6); // Sin texto
 
         // Crear los JTextField para la entrada de texto
-        inputUsuario = crearInput("NOMBRE DE USUARIO");
-        inputServidor = crearInput("NOMBRE DEL SERVIDOR");
-        inputClave = crearInput("CLAVE DEL SERVIDOR");
+        inputUsuario = UIUtils.crearInput("NOMBRE DE USUARIO", 17);
+        inputServidor = UIUtils.crearInput("NOMBRE DEL SERVIDOR", 17);
+        inputClave = UIUtils.crearInput("CLAVE DEL SERVIDOR", 17);
 
         // Crear los botones (ENTRAR y SALIR)
         botonEntrar = new MenuComponent(spriteManager, MenuComponent.SIMPLE, "ENTRAR", 7, MenuComponent.BUTTON2, 72, 6);
@@ -66,27 +67,6 @@ public class MultijugadorPanel extends JPanel {
                 handleButtonRelease();
             }
         });
-    }
-
-    private JTextField crearInput(String placeholder) {
-        JTextField input = new JTextField(placeholder);
-        input.setFont(new Font("minimalPixel", Font.PLAIN, 48)); // Fuente más grande
-        input.setForeground(Color.WHITE); // Color del texto
-        input.setBackground(new Color(0, 0, 0, 0)); // Fondo transparente
-        input.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10)); // Espaciado interno
-        input.setOpaque(false); // Hacer el JTextField transparente
-
-        // Limitar el número máximo de caracteres a 17
-        input.setDocument(new PlainDocument() {
-            @Override
-            public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
-                if ((getLength() + str.length()) <= 17) { // Permitir solo 17 caracteres
-                    super.insertString(offs, str, a);
-                }
-            }
-        });
-
-        return input;
     }
 
     private void handleButtonPress(int mouseX, int mouseY) {
