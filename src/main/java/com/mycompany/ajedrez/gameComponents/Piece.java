@@ -14,8 +14,6 @@ public abstract class Piece implements Serializable {
 
     public static final int BLACK = 0;
     public static final int WHITE = 1;
-    public static final int RED = 2;
-    public static final int BLUE = 3;
 
     private String color; // Color de la pieza (usando las constantes anteriores)
     private int type;     // Tipo de pieza (usando las constantes anteriores)

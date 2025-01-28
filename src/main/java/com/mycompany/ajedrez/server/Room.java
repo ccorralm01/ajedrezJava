@@ -1,21 +1,21 @@
 package com.mycompany.ajedrez.server;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Room implements Serializable {
     String roomName;
     String roomPassword;
     boolean isEnded;
-    String host;
-    ArrayList<String> players = new ArrayList<>();
+    Map<String, String> players = new HashMap<>(); // Nombre del jugador -> Color ("blanco" o "negro")
+    private transient Socket socket; // No se serializa
 
-    public Room(String roomName, String roomPassword, String host, ArrayList<String> players, boolean isEnded) {
+    public Room(String roomName, String roomPassword, Map<String, String> players) {
         this.roomName = roomName;
         this.roomPassword = roomPassword;
-        this.host = host;
         this.players = players;
-        this.isEnded = false;
     }
 
     public String getRoomName() {
@@ -34,28 +34,32 @@ public class Room implements Serializable {
         this.roomPassword = roomPassword;
     }
 
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    public ArrayList<String> getPlayers() {
+    public Map<String, String> getPlayers() {
         return players;
     }
 
-    public void setPlayers(ArrayList<String> players) {
+    public void setPlayers(Map<String, String> players) {
         this.players = players;
     }
 
-    public boolean isEnded() {
-        return isEnded;
+    public Socket getSocket() {
+        return socket;
     }
 
-    public void setEnded(boolean ended) {
-        isEnded = ended;
+    public void setSocket(Socket socket) {
+        this.socket = socket;
+    }
+
+    // Método para asignar colores a los jugadores
+    public void asignarColores() {
+        if (players.size() == 2) {
+            String[] colores = {"blanco", "negro"};
+            int i = 0;
+            for (String jugador : players.keySet()) {
+                players.put(jugador, colores[i]);
+                i++;
+            }
+        }
     }
 
     @Override
@@ -64,7 +68,6 @@ public class Room implements Serializable {
                 "roomName='" + roomName + '\'' +
                 ", roomPassword='" + roomPassword + '\'' +
                 ", isEnded=" + isEnded +
-                ", host='" + host + '\'' +
                 ", players=" + players +
                 '}';
     }

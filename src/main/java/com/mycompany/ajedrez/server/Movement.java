@@ -4,20 +4,16 @@ import com.mycompany.ajedrez.gameComponents.Piece;
 
 import java.io.Serializable;
 
-public class Request implements Serializable {
+public class Movement implements Serializable {
     String user;
-    String roomName;
-    String roomPassword;
     private Piece piece;
     private int fromX;
     private int fromY;
     private int toX;
     private int toY;
 
-    public Request(String user, String roomName, String roomPassword, Piece piece, int fromX, int fromY, int toX, int toY) {
+    public Movement(String user, String roomName, String roomPassword, Piece piece, int fromX, int fromY, int toX, int toY) {
         this.user = user;
-        this.roomName = roomName;
-        this.roomPassword = roomPassword;
         this.piece = piece;
         this.fromX = fromX;
         this.fromY = fromY;
@@ -34,22 +30,6 @@ public class Request implements Serializable {
 
     public void setUser(String user) {
         this.user = user;
-    }
-
-    public String getRoomName() {
-        return roomName;
-    }
-
-    public void setRoomName(String roomName) {
-        this.roomName = roomName;
-    }
-
-    public String getRoomPassword() {
-        return roomPassword;
-    }
-
-    public void setRoomPassword(String roomPassword) {
-        this.roomPassword = roomPassword;
     }
 
     public Piece getPiece() {

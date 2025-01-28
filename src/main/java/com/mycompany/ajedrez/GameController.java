@@ -4,7 +4,7 @@ import com.mycompany.ajedrez.gameComponents.Board;
 import com.mycompany.ajedrez.gameComponents.Hud;
 import com.mycompany.ajedrez.gameComponents.Piece;
 import com.mycompany.ajedrez.panels.CapturesPanel;
-import com.mycompany.ajedrez.server.Request;
+import com.mycompany.ajedrez.server.Movement;
 import com.mycompany.ajedrez.managers.AnimationManager;
 import com.mycompany.ajedrez.managers.SpriteManager;
 import com.mycompany.ajedrez.panels.BoardPanel;
@@ -259,5 +259,9 @@ public class GameController {
             clearSelection();
         }
         System.out.println("Es tu turno: " + myTurn);
+    }
+
+    public boolean isMyTurn() {
+        return myTurn;
     }
 }

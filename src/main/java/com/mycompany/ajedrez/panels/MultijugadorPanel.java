@@ -5,6 +5,8 @@ import com.mycompany.ajedrez.managers.SpriteManager;
 import com.mycompany.ajedrez.menuComponents.Background;
 import com.mycompany.ajedrez.menuComponents.MenuComponent;
 import com.mycompany.ajedrez.menuComponents.UIUtils;
+import com.mycompany.ajedrez.server.Client;
+import com.mycompany.ajedrez.server.Room;
 
 import javax.swing.*;
 import javax.swing.text.AttributeSet;
@@ -13,6 +15,10 @@ import javax.swing.text.PlainDocument;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 public class MultijugadorPanel extends JPanel {
     private Background background;
@@ -25,7 +31,9 @@ public class MultijugadorPanel extends JPanel {
     private MenuComponent botonEntrar;
     private MenuComponent botonSalir;
     private SpriteManager spriteManager;
-    private JFrame parentFrame; // Referencia a la ventana principal
+    private JFrame parentFrame;
+    private Room newRoom;
+    private Client cliente;
 
     public MultijugadorPanel(SpriteManager spriteManager, JFrame parentFrame) {
         this.spriteManager = spriteManager;
@@ -87,7 +95,6 @@ public class MultijugadorPanel extends JPanel {
             botonEntrar.setType(MenuComponent.PRETY); // Cambiar a PRETY BUTTON2
             iniciarJuego();
 
-            // TODO Validar inputs y cargar el juego
         }
 
         // Verificar si se hizo clic en el botón SALIR
@@ -112,10 +119,38 @@ public class MultijugadorPanel extends JPanel {
             return;
         }
 
-        // Si los inputs son válidos, cargar el juego (GUI)
-        parentFrame.dispose(); // Cerrar la ventana actual
-        new GUI(inputUsuario.getText(), inputServidor.getText(), inputClave.getText()); // Iniciar el juego
+        // TODO Validar inputs y cargar el juego
+        Map<String, String> jugadores = new HashMap<>();
+        jugadores.put(usuario, ""); // El color se asignará más tarde
+        newRoom = new Room(servidor, clave, jugadores);
+        cliente = new Client("127.0.0.1", 6666);
+        cliente.setMjPanel(this);
+        cliente.iniciar();
     }
+
+    public void onRoomSetUp(Room room) {
+        String versus;
+        parentFrame.dispose(); // Cerrar la ventana actual
+
+        ArrayList<String> players = new ArrayList<>(room.getPlayers().keySet()); // Obtener las claves (usuarios) en una lista ordenada
+
+        if (players.isEmpty()) {
+            System.err.println("Error: La sala no tiene jugadores.");
+            return;
+        }
+
+        String currentUser = inputUsuario.getText();
+        String lastPlayer = players.getLast();
+        String firstPlayer = players.getFirst();
+
+        if (lastPlayer.equals(currentUser)) {
+            versus = firstPlayer;
+        } else {
+            versus = lastPlayer;
+        }
+        new GUI(currentUser, versus, inputServidor.getText(), inputClave.getText(), room); // Iniciar el juego
+    }
+
 
     private void volverAMenuPrincipal() {
         // Cambiar al panel del menú principal
@@ -192,6 +227,17 @@ public class MultijugadorPanel extends JPanel {
         inputUsuario.setBounds(buttonX + desplazamientoDerecha, input1Y, buttonWidth - desplazamientoDerecha, tileSize);
         inputServidor.setBounds(buttonX + desplazamientoDerecha, input2Y, buttonWidth - desplazamientoDerecha, tileSize);
         inputClave.setBounds(buttonX + desplazamientoDerecha, input3Y, buttonWidth - desplazamientoDerecha, tileSize);
+    }
 
+    public Room getNewRoom() {
+        return newRoom;
+    }
+
+    public Client getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(Client cliente) {
+        this.cliente = cliente;
     }
 }

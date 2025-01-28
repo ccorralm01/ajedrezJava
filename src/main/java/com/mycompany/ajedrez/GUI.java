@@ -8,19 +8,24 @@ import com.mycompany.ajedrez.menuComponents.MenuComponent;
 import com.mycompany.ajedrez.panels.BoardPanel;
 import com.mycompany.ajedrez.panels.CapturesPanel;
 import com.mycompany.ajedrez.panels.HudPanel;
+import com.mycompany.ajedrez.panels.MultijugadorPanel;
+import com.mycompany.ajedrez.server.Room;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GUI extends JFrame {
     private MenuComponent botonSalir; // Botón para volver al menú principal
+    private Room newRoom;
 
-    public GUI(String usuario, String servidor, String clave) {
+    public GUI(String usuario, String versus, String servidor, String clave, Room newRoom) {
         // Iniciar el juego con los datos ingresados
         SpriteManager spriteManager = new SpriteManager("src/res/Board.png", "src/res/pieces.png", "src/res/menu.png");
-        Board board = new Board(spriteManager);
+        Board board = new Board(spriteManager, usuario, versus, newRoom);
         Captures captures = new Captures(spriteManager); // Crear el objeto Captures
         setResizable(false);
 
@@ -87,7 +92,7 @@ public class GUI extends JFrame {
         AnimationManager animationManager = new AnimationManager(hudPanel);
 
         // Configurar ventana
-        setTitle("PIXEL CHESS | Usuario: " + usuario + " | Servidor: " + servidor + " | Clave: " + clave);
+        setTitle("PIXEL CHESS | " + usuario + " VS " + versus + " | Servidor: " + servidor + " | Clave: " + clave);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         pack(); // Ajustar el tamaño de la ventana al contenido
         setLocationRelativeTo(null); // Centrar la ventana en la pantalla
@@ -122,8 +127,11 @@ public class GUI extends JFrame {
     }
 
     public static void main(String[] args) {
+        Map<String, String> jugadores = new HashMap<>();
+        jugadores.put("userDebug1", "blanco");
+        jugadores.put("userDebug2", "negro");
         SwingUtilities.invokeLater(() -> {
-            new GUI("", "", "");
+            new GUI("", "", "", "", new Room("debug", "debug", jugadores));
         });
     }
 }
