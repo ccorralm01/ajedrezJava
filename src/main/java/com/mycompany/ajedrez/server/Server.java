@@ -39,7 +39,7 @@ public class Server implements Runnable {
                         System.out.println("Emparejando jugadores en la sala: " + room.getRoomName());
 
                         salaPendiente.getPlayers().putAll(room.getPlayers());
-                        salaPendiente.asignarColores();
+                        salaPendiente.asignarPrimeraJugada();
 
                         // Notificar a ambos clientes
                         ObjectOutputStream salida1 = new ObjectOutputStream(salaPendiente.getSocket().getOutputStream());

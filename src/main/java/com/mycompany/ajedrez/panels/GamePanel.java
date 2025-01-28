@@ -1,28 +1,25 @@
-package com.mycompany.ajedrez;
+package com.mycompany.ajedrez.panels;
 
+import com.mycompany.ajedrez.GameController;
+import com.mycompany.ajedrez.Main;
 import com.mycompany.ajedrez.gameComponents.Board;
 import com.mycompany.ajedrez.gameComponents.Captures;
 import com.mycompany.ajedrez.managers.AnimationManager;
 import com.mycompany.ajedrez.managers.SpriteManager;
 import com.mycompany.ajedrez.menuComponents.MenuComponent;
-import com.mycompany.ajedrez.panels.BoardPanel;
-import com.mycompany.ajedrez.panels.CapturesPanel;
-import com.mycompany.ajedrez.panels.HudPanel;
-import com.mycompany.ajedrez.panels.MultijugadorPanel;
 import com.mycompany.ajedrez.server.Room;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.HashMap;
-import java.util.Map;
 
-public class GUI extends JFrame {
+public class GamePanel extends JFrame {
     private MenuComponent botonSalir; // Botón para volver al menú principal
     private Room newRoom;
+    private GameController gameController;
 
-    public GUI(String usuario, String versus, String servidor, String clave, Room newRoom) {
+    public GamePanel(String usuario, String versus, String servidor, String clave, Room newRoom) {
         // Iniciar el juego con los datos ingresados
         SpriteManager spriteManager = new SpriteManager("src/res/Board.png", "src/res/pieces.png", "src/res/menu.png");
         Board board = new Board(spriteManager, usuario, versus, newRoom);
@@ -88,7 +85,7 @@ public class GUI extends JFrame {
         add(layeredPane);
 
         // Inicializar controlador y animación
-        GameController gameController = new GameController(board, boardPanel, hudPanel, capturesPanel,spriteManager);
+        gameController = new GameController(board, boardPanel, hudPanel, capturesPanel,spriteManager, newRoom, usuario);
         AnimationManager animationManager = new AnimationManager(hudPanel);
 
         // Configurar ventana
@@ -126,12 +123,7 @@ public class GUI extends JFrame {
         main.runMain();
     }
 
-    public static void main(String[] args) {
-        Map<String, String> jugadores = new HashMap<>();
-        jugadores.put("userDebug1", "blanco");
-        jugadores.put("userDebug2", "negro");
-        SwingUtilities.invokeLater(() -> {
-            new GUI("", "", "", "", new Room("debug", "debug", jugadores));
-        });
+    public GameController getGameController() {
+        return gameController;
     }
 }

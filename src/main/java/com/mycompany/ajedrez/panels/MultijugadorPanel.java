@@ -1,6 +1,5 @@
 package com.mycompany.ajedrez.panels;
 
-import com.mycompany.ajedrez.GUI;
 import com.mycompany.ajedrez.managers.SpriteManager;
 import com.mycompany.ajedrez.menuComponents.Background;
 import com.mycompany.ajedrez.menuComponents.MenuComponent;
@@ -9,16 +8,12 @@ import com.mycompany.ajedrez.server.Client;
 import com.mycompany.ajedrez.server.Room;
 
 import javax.swing.*;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.PlainDocument;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class MultijugadorPanel extends JPanel {
     private Background background;
@@ -148,7 +143,8 @@ public class MultijugadorPanel extends JPanel {
         } else {
             versus = lastPlayer;
         }
-        new GUI(currentUser, versus, inputServidor.getText(), inputClave.getText(), room); // Iniciar el juego
+        GamePanel gamePanel = new GamePanel(currentUser, versus, inputServidor.getText(), inputClave.getText(), room); // Iniciar el juego
+        cliente.setGameController(gamePanel.getGameController());
     }
 
 
@@ -235,6 +231,10 @@ public class MultijugadorPanel extends JPanel {
 
     public Client getCliente() {
         return cliente;
+    }
+
+    public JTextField getInputUsuario() {
+        return inputUsuario;
     }
 
     public void setCliente(Client cliente) {

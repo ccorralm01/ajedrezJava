@@ -6,6 +6,7 @@ import com.mycompany.ajedrez.panels.MultijugadorPanel;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class Client {
     private String host;
@@ -15,7 +16,7 @@ public class Client {
     private GameController gameController;
 
     private Room setUpRoom;
-
+    private Movement movimientoPieza;
     public Client(String host, int puerto) {
         this.host = host;
         this.puerto = puerto;
@@ -42,22 +43,33 @@ public class Client {
 
             mjPanel.onRoomSetUp(setUpRoom);
 
+            // Asignar el turno según el jugador que empieza
+            if (Objects.equals(mjPanel.getInputUsuario().getText(), setUpRoom.getPlayerStart())) {
+                gameController.setMyTurn(true);
+            } else {
+                gameController.setMyTurn(false);
+            }
+
             /*
             // Cada turno
             while (true) {
-                if (turno) {
-                    // get movimiento
-                    // Aquí deberías implementar la lógica para obtener el movimiento del jugador
-                }
-                if (respuesta instanceof Room respuestaRoom) {
-                    // Lógica para manejar la respuesta de la sala
-                } else if (respuesta instanceof Movement movement) {
-                    System.out.println("Se recibió una solicitud: " + movement);
-                } else {
-                    System.out.println("Se recibió un tipo de objeto desconocido: " + respuesta.getClass().getName());
+                if (gameController.getMyTurn()) {
+                    System.out.println("Esperando movimiento...");
+                    // Esperar hasta que movimientoPieza tenga un valor
+                    while (movimientoPieza == null) {
+                        try {
+                            Thread.sleep(100); // Pequeña pausa para evitar uso excesivo de CPU
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    System.out.println("Movimiento recibido: " + movimientoPieza);
                 }
             }
+
              */
+
         } catch (IOException e) {
             System.err.println("Error en el cliente: " + e.getMessage());
         } catch (ClassNotFoundException e) {

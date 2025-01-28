@@ -29,14 +29,22 @@ public class GameController {
     private List<Point> killMoves = new ArrayList<>();
     private AnimationManager animationManager;
     private CapturesPanel capturesPanel; // Referencia al CapturesPanel
+    private Room room;
+    private String currentUser;
+    private int posicionPiezaX;
+    private int posicionPiezaY;
+    private int posicionMovimientoX;
+    private int posicionMovimientoY;
 
-    public GameController(Board board, BoardPanel boardPanel, HudPanel hudPanel, CapturesPanel capturesPanel, SpriteManager spriteManager) {
+    public GameController(Board board, BoardPanel boardPanel, HudPanel hudPanel, CapturesPanel capturesPanel, SpriteManager spriteManager, Room room, String usuario) {
         this.board = board;
         this.boardPanel = boardPanel;
         this.hudPanel = hudPanel;
         this.capturesPanel = capturesPanel; // Inicializar CapturesPanel
         this.spriteManager = spriteManager;
         this.animationManager = new AnimationManager(hudPanel); // Inicializar AnimationManager
+        this.room = room;
+        this.currentUser = usuario;
         initMouseListener();
     }
 
@@ -73,7 +81,8 @@ public class GameController {
 
     private void selectPiece(int y, int x) {
         Piece piece = board.getPiece(y, x);
-        if (piece != null && piece.getColor().equals("negro")) {
+        String miColor = room.getPlayers().get(currentUser);
+        if (piece != null && piece.getColor().equals(miColor)) {
             selectedX = x;
             selectedY = y;
             validMoves = calculateValidMoves(y, x);
@@ -102,6 +111,8 @@ public class GameController {
             animationManager.startAnimation();
             hudPanel.repaint();
             boardPanel.repaint();
+            posicionPiezaX = x;
+            posicionPiezaY = y;
             System.out.println("Pieza seleccionada: " + piece.getSymbol() + " en (" + y + ", " + x + ")");
         }
     }
@@ -135,10 +146,16 @@ public class GameController {
 
                 // Mover la pieza si no se capturó un rey
                 board.movePiece(selectedY, selectedX, y, x);
+                posicionMovimientoX = x;
+                posicionMovimientoY = y;
                 clearSelection();
-                System.out.println("Movimiento válido: " + selectedPiece.getSymbol() + " a (" + y + ", " + x + ")");
+                System.out.println("Movimiento válido para la pieza "+ selectedPiece.getSymbol() +" : \n" +
+                        "   - Posición original: [" + posicionPiezaY + ", " + posicionPiezaX + "]\n    - Posición nueva: [" + posicionMovimientoY + ", " + posicionMovimientoX + "]\n");
 
                 // TODO: Enviar el movimiento al servidor
+                Movement movement = new Movement(posicionPiezaX, posicionPiezaY, posicionMovimientoX, posicionMovimientoY);
+
+
             }
         } else {
             System.out.println("Movimiento inválido.");
@@ -261,7 +278,9 @@ public class GameController {
         System.out.println("Es tu turno: " + myTurn);
     }
 
-    public boolean isMyTurn() {
+    public boolean getMyTurn() {
         return myTurn;
     }
+
+
 }
