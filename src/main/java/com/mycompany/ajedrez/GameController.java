@@ -4,11 +4,11 @@ import com.mycompany.ajedrez.gameComponents.Board;
 import com.mycompany.ajedrez.gameComponents.Hud;
 import com.mycompany.ajedrez.gameComponents.Piece;
 import com.mycompany.ajedrez.panels.CapturesPanel;
-import com.mycompany.ajedrez.server.Movement;
 import com.mycompany.ajedrez.managers.AnimationManager;
 import com.mycompany.ajedrez.managers.SpriteManager;
 import com.mycompany.ajedrez.panels.BoardPanel;
 import com.mycompany.ajedrez.panels.HudPanel;
+import com.mycompany.ajedrez.server.Movement;
 import com.mycompany.ajedrez.server.Room;
 
 import javax.swing.*;
@@ -35,6 +35,8 @@ public class GameController {
     private int posicionPiezaY;
     private int posicionMovimientoX;
     private int posicionMovimientoY;
+
+    private Movement lastMovement;
 
     public GameController(Board board, BoardPanel boardPanel, HudPanel hudPanel, CapturesPanel capturesPanel, SpriteManager spriteManager, Room room, String usuario) {
         this.board = board;
@@ -79,7 +81,7 @@ public class GameController {
         }
     }
 
-    private void selectPiece(int y, int x) {
+    public void selectPiece(int y, int x) {
         Piece piece = board.getPiece(y, x);
         String miColor = room.getPlayers().get(currentUser);
         if (piece != null && piece.getColor().equals(miColor)) {
@@ -117,7 +119,7 @@ public class GameController {
         }
     }
 
-    private void movePiece(int y, int x) {
+    public void movePiece(int y, int x) {
         if (isValidMove(y, x)) {
             Piece selectedPiece = board.getPiece(selectedY, selectedX);
             if (selectedPiece != null) {
@@ -153,7 +155,7 @@ public class GameController {
                         "   - Posición original: [" + posicionPiezaY + ", " + posicionPiezaX + "]\n    - Posición nueva: [" + posicionMovimientoY + ", " + posicionMovimientoX + "]\n");
 
                 // TODO: Enviar el movimiento al servidor
-                Movement movement = new Movement(posicionPiezaX, posicionPiezaY, posicionMovimientoX, posicionMovimientoY);
+                lastMovement = new Movement(posicionPiezaX, posicionPiezaY, posicionMovimientoX, posicionMovimientoY);
 
 
             }
@@ -282,5 +284,7 @@ public class GameController {
         return myTurn;
     }
 
-
+    public Movement getLastMovement() {
+        return lastMovement;
+    }
 }

@@ -1,7 +1,5 @@
 package com.mycompany.ajedrez.server;
 
-import com.mycompany.ajedrez.gameComponents.Piece;
-
 import java.io.Serializable;
 
 public class Movement implements Serializable {
@@ -52,7 +50,7 @@ public class Movement implements Serializable {
 
     @Override
     public String toString() {
-        return "Request{" +
+        return "Movement{" +
                 ", fromX=" + fromX +
                 ", fromY=" + fromY +
                 ", toX=" + toX +
