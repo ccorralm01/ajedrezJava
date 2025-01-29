@@ -15,11 +15,10 @@ public class Board {
     public Board(SpriteManager spriteManager, String usuario, String versus, Room room) {
         this.spriteManager = spriteManager;
         board = new Piece[8][8];
-        System.out.println("room en board class: "+ room);
         myPieces = room.getPlayers().get(usuario);
         enemyPieces = room.getPlayers().get(versus);
-        System.out.println("Piezas aliadas: " + myPieces);
-        System.out.println("Piezas enemigas: " + enemyPieces);
+        // System.out.println("Piezas aliadas: " + myPieces);
+        // System.out.println("Piezas enemigas: " + enemyPieces);
         initializeBoard();
     }
 

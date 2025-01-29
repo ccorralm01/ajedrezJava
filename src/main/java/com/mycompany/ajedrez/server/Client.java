@@ -17,6 +17,9 @@ public class Client {
     private Room setUpRoom;
     private Movement movimientoPieza = null;
 
+    // Objeto para sincronización
+    private final Object lock = new Object();
+
     public Client(String host, int puerto) {
         this.host = host;
         this.puerto = puerto;
@@ -28,58 +31,42 @@ public class Client {
                 Socket socket = new Socket(host, puerto);
                 ObjectOutputStream salida = new ObjectOutputStream(socket.getOutputStream());
         ) {
-            salida.flush();
-            // Crear y enviar la sala al servidor
-            Room room = mjPanel.getNewRoom();
-            System.out.println("Room creada: " + room.getRoomName());
 
+            Room room = mjPanel.getNewRoom();
             salida.writeObject(room);
             System.out.println("Room enviada: " + room.getRoomName());
 
             ObjectInputStream entrada = new ObjectInputStream(socket.getInputStream());
             System.out.println("Entrada creada");
-
             setUpRoom = (Room) entrada.readObject();
-            System.out.println("Respuesta recibida");
-
             mjPanel.onRoomSetUp(setUpRoom);
 
-            // Asignar el turno según el jugador que empieza
-            if (Objects.equals(mjPanel.getInputUsuario().getText(), setUpRoom.getPlayerStart())) {
-                gameController.setMyTurn(true);
-                // Selecciono peon en codigo
-                gameController.selectPiece(6, 0);
-                gameController.movePiece(5, 0);
-            } else {
-                gameController.setMyTurn(false);
-            }
-
+            asignarTurno();
 
             // Cada turno
             while (true) {
                 if (gameController.getMyTurn()) {
-                    // mi turno
                     System.out.println("Esperando movimiento...");
-                    // Esperar hasta que movimientoPieza tenga un valor
-                    while (movimientoPieza == null) {
-                        movimientoPieza = gameController.getLastMovement();
-                        try {
-                            Thread.sleep(100);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                    // simularTurno();
+
+                    // Esperar a que movimientoPieza tenga un valor
+                    synchronized (lock) {
+                        while (movimientoPieza == null) {
+                            lock.wait(); // Espera hasta que se notifique
                         }
                     }
+
                     salida.writeObject(movimientoPieza);
                     System.out.println("Movimiento enviado: " + movimientoPieza);
-                    movimientoPieza = null;
+                    movimientoPieza = null; // Reiniciar para el próximo turno
                 } else {
-                    // recibo turno del contrario
+                    // Recibo turno del contrario
                     System.out.println("Esperando movimiento del contrario...");
                     Object movimientoRecibido = entrada.readObject();
                     System.out.println("Movimiento del jugador contrario recibido: " + movimientoRecibido);
                 }
 
-                if(gameController.getMyTurn()) {
+                if (gameController.getMyTurn()) {
                     gameController.setMyTurn(false);
                     System.out.println("Ya no es mi turno");
                 } else {
@@ -88,7 +75,7 @@ public class Client {
                 }
             }
 
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             System.err.println("Error en el cliente: " + e.getMessage());
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
@@ -96,52 +83,34 @@ public class Client {
         }
     }
 
-    public String getHost() {
-        return host;
+    public void asignarTurno() {
+        // Asignar el turno según el jugador que empieza
+        if (Objects.equals(mjPanel.getInputUsuario().getText(), setUpRoom.getPlayerStart())) {
+            gameController.setMyTurn(true);
+        } else {
+            gameController.setMyTurn(false);
+        }
     }
 
-    public void setHost(String host) {
-        this.host = host;
+    public void simularTurno() {
+        gameController.selectPiece(6, 0);
+        gameController.movePiece(5, 0);
     }
 
-    public int getPuerto() {
-        return puerto;
-    }
-
-    public void setPuerto(int puerto) {
-        this.puerto = puerto;
-    }
-
-    public boolean isTurno() {
-        return turno;
-    }
-
-    public void setTurno(boolean turno) {
-        this.turno = turno;
-    }
-
-    public MultijugadorPanel getMjPanel() {
-        return mjPanel;
+    // actualizar el movimiento y notificar
+    public void setMovimientoPieza(Movement movimiento) {
+        synchronized (lock) {
+            this.movimientoPieza = movimiento;
+            lock.notify();
+        }
     }
 
     public void setMjPanel(MultijugadorPanel mjPanel) {
         this.mjPanel = mjPanel;
     }
 
-    public GameController getGameController() {
-        return gameController;
-    }
-
     public void setGameController(GameController gameController) {
         this.gameController = gameController;
-    }
-
-    public Room getSetUpRoom() {
-        return setUpRoom;
-    }
-
-    public void setSetUpRoom(Room setUpRoom) {
-        this.setUpRoom = setUpRoom;
     }
 
     public static void main(String[] args) {

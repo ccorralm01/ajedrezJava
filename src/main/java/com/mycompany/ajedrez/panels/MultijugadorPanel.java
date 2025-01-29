@@ -144,6 +144,7 @@ public class MultijugadorPanel extends JPanel {
             versus = lastPlayer;
         }
         GamePanel gamePanel = new GamePanel(currentUser, versus, inputServidor.getText(), inputClave.getText(), room); // Iniciar el juego
+        gamePanel.getGameController().setClient(cliente);
         cliente.setGameController(gamePanel.getGameController());
     }
 

@@ -11,9 +11,14 @@ public class Server implements Runnable {
     private int puerto;
     private ServerSocket servidorSocket;
 
+    private ObjectInputStream primeraEntrada;
+
     private Socket socketPrimerJugador;
     private Socket socketSegundoJugador;
-
+    ObjectOutputStream salidaPrimerJugador;
+    ObjectOutputStream salidaSegundoJugador;
+    ObjectInputStream entradaPrimerJugador;
+    ObjectInputStream entradaSegundoJugador;
 
     public Server(int puerto) {
         this.puerto = puerto;
@@ -57,39 +62,55 @@ public class Server implements Runnable {
                         // Jugadores en sala: {cesar=Socket[addr=/127.0.0.1,port=62308,localport=6666], paco=Socket[addr=/127.0.0.1,port=62309,localport=6666]}
 
                         salaPendiente.asignarPrimeraJugada();
-
-                        // Notificar a ambos clientes
-                        ObjectOutputStream salida1 = new ObjectOutputStream(salaPendiente.getSocket().getOutputStream());
-                        ObjectOutputStream salida2 = new ObjectOutputStream(socket.getOutputStream());
-
-                        salida1.writeObject(salaPendiente);
-                        salida2.writeObject(salaPendiente);
-                        System.out.println("Sala creada: " + salaPendiente);
-
                         String playerStart = salaPendiente.getPlayerStart();
 
-                        // Eliminar la sala pendiente
-                        salasPendientes.remove(room.getRoomName());
-
-                        // Iniciar hilo de juego
                         System.out.println("Jugadores en sala: " + jugadoresEnSala);
+
+                        if(primeraEntrada == entrada) {
+                            System.out.println("diferentes");
+                            System.out.println(primeraEntrada);
+                            System.out.println(entrada);
+                        } else {
+                            System.out.println("No diferentes");
+                        }
 
                         for (Map.Entry<String, Socket> entry : jugadoresEnSala.entrySet()) {
                             String jugador = entry.getKey();
                             Socket socketJugador = entry.getValue();
                             if (!jugador.equals(playerStart)) {
                                 socketSegundoJugador = socketJugador;
+                                salidaSegundoJugador = new ObjectOutputStream(socketSegundoJugador.getOutputStream());
+                                // Si el socket que se usa councide con el que he recorrido, significa que la entrada corresponde a este, si no se le asigna una entrada nueva
+                                // entradaSegundoJugador = socket == socketJugador ? entrada : new ObjectInputStream(socketJugador.getInputStream());
                             } else {
                                 socketPrimerJugador = socketJugador;
+                                salidaPrimerJugador = new ObjectOutputStream(socketPrimerJugador.getOutputStream());
+                                // Si el socket que se usa councide con el que he recorrido, significa que la entrada corresponde a este, si no se le asigna una entrada nueva
+                                // entradaPrimerJugador = socket == socketJugador ? entrada : new ObjectInputStream(socketJugador.getInputStream());
                             }
                         }
 
+                        salidaSegundoJugador.writeObject(salaPendiente);
+                        salidaPrimerJugador.writeObject(salaPendiente);
+                        System.out.println("Sala creada: " + salaPendiente);
+
+                        // Eliminar la sala pendiente
+                        salasPendientes.remove(room.getRoomName());
+
+                        System.out.println("Socket primer jugador: " + socketPrimerJugador);
+                        System.out.println("Entrada primer jugador: " + entradaPrimerJugador);
+                        System.out.println("Salida primer jugador: " + salidaPrimerJugador);
+
+                        System.out.println("Socket segundo jugador: " + socketSegundoJugador);
+                        System.out.println("Entrada segundo jugador: " + entradaSegundoJugador);
+                        System.out.println("Salida segundo jugador: " + salidaSegundoJugador);
+
                         // Primer movimiento: el jugador con el turno inicial hace el primer movimiento
-                        Movement primerMovimiento = (Movement) entrada.readObject();
+                        System.out.println("Esperando primer movimiento...");
+                        Movement primerMovimiento = (Movement) entradaPrimerJugador.readObject();
                         System.out.println("Primer movimiento recibido: " + primerMovimiento);
 
                         // Enviar el primer movimiento al segundo jugador
-                        ObjectOutputStream salidaSegundoJugador = new ObjectOutputStream(socketSegundoJugador.getOutputStream());
                         salidaSegundoJugador.writeObject(primerMovimiento);
                         System.out.println("Primer movimiento enviado al segundo jugador: " + primerMovimiento);
 
@@ -126,6 +147,7 @@ public class Server implements Runnable {
                     salasPendientes.put(room.getRoomName(), room);
                     String jugador = room.getPlayers().entrySet().iterator().next().getKey();
                     jugadoresEnSala.put(jugador, socket);
+                    primeraEntrada = entrada;
                 }
             }
         } catch (IOException | ClassNotFoundException e) {

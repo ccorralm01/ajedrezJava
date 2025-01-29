@@ -8,6 +8,7 @@ import com.mycompany.ajedrez.managers.AnimationManager;
 import com.mycompany.ajedrez.managers.SpriteManager;
 import com.mycompany.ajedrez.panels.BoardPanel;
 import com.mycompany.ajedrez.panels.HudPanel;
+import com.mycompany.ajedrez.server.Client;
 import com.mycompany.ajedrez.server.Movement;
 import com.mycompany.ajedrez.server.Room;
 
@@ -35,6 +36,7 @@ public class GameController {
     private int posicionPiezaY;
     private int posicionMovimientoX;
     private int posicionMovimientoY;
+    private Client client;
 
     private Movement lastMovement;
 
@@ -156,7 +158,7 @@ public class GameController {
 
                 // TODO: Enviar el movimiento al servidor
                 lastMovement = new Movement(posicionPiezaX, posicionPiezaY, posicionMovimientoX, posicionMovimientoY);
-
+                client.setMovimientoPieza(lastMovement);
 
             }
         } else {
@@ -286,5 +288,9 @@ public class GameController {
 
     public Movement getLastMovement() {
         return lastMovement;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
     }
 }
