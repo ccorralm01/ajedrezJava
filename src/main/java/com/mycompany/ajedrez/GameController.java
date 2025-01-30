@@ -77,16 +77,19 @@ public class GameController {
 
     private void handleClick(int x, int y) {
         if (selectedX == -1 && selectedY == -1) {
-            selectPiece(y, x);
+            selectPiece(y, x, true);
         } else {
-            movePiece(y, x);
+            movePiece(y, x, true);
         }
     }
 
-    public void selectPiece(int y, int x) {
+    public void selectPiece(int y, int x, boolean isMyPiece) {
         Piece piece = board.getPiece(y, x);
+        if (piece == null) return;
+
         String miColor = room.getPlayers().get(currentUser);
-        if (piece != null && piece.getColor().equals(miColor)) {
+
+        if (isMyPiece && piece.getColor().equals(miColor)) {
             selectedX = x;
             selectedY = y;
             validMoves = calculateValidMoves(y, x);
@@ -115,55 +118,58 @@ public class GameController {
             animationManager.startAnimation();
             hudPanel.repaint();
             boardPanel.repaint();
-            posicionPiezaX = x;
-            posicionPiezaY = y;
-            System.out.println("Pieza seleccionada: " + piece.getSymbol() + " en (" + y + ", " + x + ")");
         }
+
+        posicionPiezaX = x;
+        posicionPiezaY = y;
+
+        System.out.println("Pieza seleccionada: " + piece.getSymbol() + " en (" + y + ", " + x + ")");
     }
 
-    public void movePiece(int y, int x) {
-        if (isValidMove(y, x)) {
-            Piece selectedPiece = board.getPiece(selectedY, selectedX);
-            if (selectedPiece != null) {
-                // Verificar si hay una pieza en la casilla de destino
-                Piece targetPiece = board.getPiece(y, x);
-                if (targetPiece != null && !targetPiece.getColor().equals(selectedPiece.getColor())) {
-                    // Incrementar el contador de capturas
-                    capturesPanel.getCaptures().incrementCaptureCount(targetPiece);
-                    capturesPanel.repaint(); // Redibujar el CapturesPanel
+    public void movePiece(int y, int x, boolean isMyPiece) {
+        // Verificar que las coordenadas estén dentro del rango válido
+        if (y < 0 || y > 7 || x < 0 || x > 7) {
+            System.err.println("Coordenadas inválidas: y=" + y + ", x=" + x);
+            return;
+        }
 
-                    System.out.println("Target : " + targetPiece.getType());
-                    System.out.println("Piece : " + selectedPiece.getType());
-
-                    // Verificar si la pieza capturada es un rey
-                    if (targetPiece.getType() == Piece.KING) { // Solo si es un rey
-                        // Mover la pieza primero
-                        board.movePiece(selectedY, selectedX, y, x);
-                        clearSelection();
-                        System.out.println("Movimiento válido: " + selectedPiece.getSymbol() + " a (" + y + ", " + x + ")");
-
-                        // Luego terminar el juego
-                        endGame(selectedPiece.getColor()); // Terminar la partida
-                        return; // Salir del método para evitar más movimientos
-                    }
-                }
-
-                // Mover la pieza si no se capturó un rey
-                board.movePiece(selectedY, selectedX, y, x);
-                posicionMovimientoX = x;
-                posicionMovimientoY = y;
+        if (isMyPiece) {
+            if (!isValidMove(y, x)) {
+                System.out.println("Movimiento inválido.");
                 clearSelection();
-                System.out.println("Movimiento válido para la pieza "+ selectedPiece.getSymbol() +" : \n" +
-                        "   - Posición original: [" + posicionPiezaY + ", " + posicionPiezaX + "]\n    - Posición nueva: [" + posicionMovimientoY + ", " + posicionMovimientoX + "]\n");
-
-                // TODO: Enviar el movimiento al servidor
-                lastMovement = new Movement(posicionPiezaX, posicionPiezaY, posicionMovimientoX, posicionMovimientoY);
-                client.setMovimientoPieza(lastMovement);
-
+                return;
             }
-        } else {
-            System.out.println("Movimiento inválido.");
-            clearSelection();
+        }
+
+        Piece selectedPiece = board.getPiece(selectedY, selectedX);
+        if (selectedPiece == null) return;
+
+        // Verificar si hay una pieza en la casilla de destino
+        Piece targetPiece = board.getPiece(y, x);
+        if (targetPiece != null && !targetPiece.getColor().equals(selectedPiece.getColor())) {
+            // Incrementar el contador de capturas
+            capturesPanel.getCaptures().incrementCaptureCount(targetPiece);
+            capturesPanel.repaint();
+
+            // Si la pieza capturada es un rey, terminar el juego
+            if (targetPiece.getType() == Piece.KING) {
+                board.movePiece(selectedY, selectedX, y, x);
+                clearSelection();
+                endGame(selectedPiece.getColor());
+                return;
+            }
+        }
+
+        // Mover la pieza
+        board.movePiece(selectedY, selectedX, y, x);
+        posicionMovimientoX = x;
+        posicionMovimientoY = y;
+        clearSelection();
+
+        // Si es mi movimiento, lo envío al servidor
+        if (isMyPiece) {
+            lastMovement = new Movement(posicionPiezaX, posicionPiezaY, posicionMovimientoX, posicionMovimientoY);
+            client.setMovimientoPieza(lastMovement);
         }
     }
 

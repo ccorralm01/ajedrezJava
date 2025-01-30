@@ -126,27 +126,25 @@ public class Server implements Runnable {
                         salidaJugadorSegundoTurno.writeObject(primerMovimiento);
                         System.out.println("Primer movimiento enviado al segundo jugador: " + primerMovimiento);
 
-                        /*
+
                         // Alternar los turnos
                         while (true) {
                             // Esperar movimiento del segundo jugador
-                            Movement movimientoSegundoJugador = (Movement) entradaSegundoJugador.readObject();
+                            Movement movimientoSegundoJugador = (Movement) entradaJugadorSegundoTurno.readObject();
                             System.out.println("Movimiento del segundo jugador recibido: " + movimientoSegundoJugador);
 
                             // Enviar movimiento al primer jugador
-                            salidaPrimerJugador.writeObject(movimientoSegundoJugador);
+                            salidaJugadorPrimerTurno.writeObject(movimientoSegundoJugador);
                             System.out.println("Movimiento enviado al primer jugador: " + movimientoSegundoJugador);
 
                             // Esperar movimiento del primer jugador
-                            Movement movimientoPrimerJugador = (Movement) entradaPrimerJugador.readObject();
+                            Movement movimientoPrimerJugador = (Movement) entradaJugadorPrimerTurno.readObject();
                             System.out.println("Movimiento del primer jugador recibido: " + movimientoPrimerJugador);
 
                             // Enviar movimiento al segundo jugador
-                            salidaSegundoJugador.writeObject(movimientoPrimerJugador);
+                            salidaJugadorSegundoTurno.writeObject(movimientoPrimerJugador);
                             System.out.println("Movimiento enviado al segundo jugador: " + movimientoPrimerJugador);
                         }
-
-                         */
 
 
                     } else {

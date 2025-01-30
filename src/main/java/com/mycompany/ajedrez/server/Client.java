@@ -47,7 +47,7 @@ public class Client {
             while (true) {
                 if (gameController.getMyTurn()) {
                     System.out.println("Esperando movimiento...");
-                    simularTurno();
+                    // simularTurno();
                     // Esperar a que movimientoPieza tenga un valor
                     synchronized (lock) {
                         while (movimientoPieza == null) {
@@ -61,8 +61,11 @@ public class Client {
                 } else {
                     // Recibo turno del contrario
                     System.out.println("Esperando movimiento del contrario...");
-                    Object movimientoRecibido = entrada.readObject();
-                    System.out.println("Movimiento del jugador contrario recibido: " + movimientoRecibido);
+                    Movement movimientoRecibido = (Movement) entrada.readObject();
+                    System.out.println("Movimiento del jugador contrario recibido: " + transformarMovement(movimientoRecibido));
+                    Movement movimientoEspejo = transformarMovement(movimientoRecibido);
+                    gameController.selectPiece(movimientoEspejo.getFromY(), movimientoEspejo.getFromX(), false);
+                    gameController.movePiece(movimientoEspejo.getToY(), movimientoEspejo.getToX(), false);
                 }
 
                 if (gameController.getMyTurn()) {
@@ -91,9 +94,19 @@ public class Client {
         }
     }
 
-    public void simularTurno() {
-        gameController.selectPiece(6, 0);
-        gameController.movePiece(5, 0);
+    public Movement transformarMovement(Movement movement) {
+        int fromX = 7 - movement.getFromX();
+        int fromY = 7 - movement.getFromY();
+        int toX = 7 - movement.getToX();
+        int toY = 7 - movement.getToY();
+
+        // Verificar que las coordenadas estén dentro del rango válido
+        if (fromX < 0 || fromX > 7 || fromY < 0 || fromY > 7 || toX < 0 || toX > 7 || toY < 0 || toY > 7) {
+            throw new IllegalArgumentException("Coordenadas inválidas después de la transformación: " +
+                    "fromX=" + fromX + ", fromY=" + fromY + ", toX=" + toX + ", toY=" + toY);
+        }
+
+        return new Movement(fromX, fromY, toX, toY);
     }
 
     // actualizar el movimiento y notificar

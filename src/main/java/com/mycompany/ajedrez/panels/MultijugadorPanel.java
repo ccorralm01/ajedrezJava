@@ -120,7 +120,8 @@ public class MultijugadorPanel extends JPanel {
         newRoom = new Room(servidor, clave, jugadores);
         cliente = new Client("127.0.0.1", 6666);
         cliente.setMjPanel(this);
-        cliente.iniciar();
+        // cliente.iniciar();
+        new Thread(() -> cliente.iniciar()).start();
     }
 
     public void onRoomSetUp(Room room) {
@@ -146,6 +147,15 @@ public class MultijugadorPanel extends JPanel {
         GamePanel gamePanel = new GamePanel(currentUser, versus, inputServidor.getText(), inputClave.getText(), room); // Iniciar el juego
         gamePanel.getGameController().setClient(cliente);
         cliente.setGameController(gamePanel.getGameController());
+        /*
+        SwingUtilities.invokeLater(() -> {
+            GamePanel gamePanel = new GamePanel(currentUser, versus, inputServidor.getText(), inputClave.getText(), room);
+            gamePanel.getGameController().setClient(cliente);
+            cliente.setGameController(gamePanel.getGameController());
+        });
+
+         */
+
     }
 
 
