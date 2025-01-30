@@ -95,7 +95,7 @@ public class GamePanel extends JFrame {
         setLocationRelativeTo(null); // Centrar la ventana en la pantalla
         setVisible(true);
 
-        gameController.setMyTurn(true);
+        //gameController.setMyTurn(true);
 
         // Añadir un MouseListener para detectar clics en el botón "SALIR"
         botonSalirPanel.addMouseListener(new MouseAdapter() {

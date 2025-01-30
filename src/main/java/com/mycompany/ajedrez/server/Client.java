@@ -47,6 +47,14 @@ public class Client {
             while (true) {
                 if (gameController.getMyTurn()) {
                     System.out.println("Esperando movimiento...");
+
+                    try {
+                        Thread.sleep(500);
+                        gameController.playSound("src/res/notify.wav");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
                     // simularTurno();
                     // Esperar a que movimientoPieza tenga un valor
                     synchronized (lock) {
@@ -64,7 +72,9 @@ public class Client {
                     Movement movimientoRecibido = (Movement) entrada.readObject();
                     System.out.println("Movimiento del jugador contrario recibido: " + transformarMovement(movimientoRecibido));
                     Movement movimientoEspejo = transformarMovement(movimientoRecibido);
-                    gameController.selectPiece(movimientoEspejo.getFromY(), movimientoEspejo.getFromX(), false);
+                    // gameController.selectPiece(movimientoEspejo.getFromY(), movimientoEspejo.getFromX());
+                    gameController.setSelectedX(movimientoEspejo.getFromX());
+                    gameController.setSelectedY(movimientoEspejo.getFromY());
                     gameController.movePiece(movimientoEspejo.getToY(), movimientoEspejo.getToX(), false);
                 }
 
@@ -112,6 +122,7 @@ public class Client {
     // actualizar el movimiento y notificar
     public void setMovimientoPieza(Movement movimiento) {
         synchronized (lock) {
+            gameController.playSound("src/res/move.wav");
             this.movimientoPieza = movimiento;
             lock.notify();
         }

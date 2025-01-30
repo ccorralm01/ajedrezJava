@@ -12,7 +12,6 @@ public class Server implements Runnable {
     private int puerto;
     private ServerSocket servidorSocket;
 
-    private ObjectInputStream primeraEntrada;
     ArrayList<ClienteConectado> clientesConectados;
     ClienteConectado primerJugadorConectado;
     ClienteConectado segundoJugadorConectado;
@@ -27,7 +26,6 @@ public class Server implements Runnable {
         this.salasPendientes = new HashMap<>();
         this.jugadoresEnSala = new HashMap<>();
         this.clientesConectados = new ArrayList<>();
-
     }
 
     @Override
@@ -73,6 +71,7 @@ public class Server implements Runnable {
 
                         ObjectOutputStream salida1 = new ObjectOutputStream(salaPendiente.getSocket().getOutputStream());
                         ObjectOutputStream salida2 = new ObjectOutputStream(socket.getOutputStream());
+
                         clientesConectados.getFirst().setSalida(salida1);
                         clientesConectados.getLast().setSalida(salida2);
                         clientesConectados.getFirst().setRoom(salaPendiente);
@@ -158,7 +157,6 @@ public class Server implements Runnable {
                     salasPendientes.put(room.getRoomName(), room);
                     String jugador = room.getPlayers().entrySet().iterator().next().getKey();
                     jugadoresEnSala.put(jugador, socket);
-                    primeraEntrada = entrada; // Guardar la entrada del primer jugador
                 }
             }
         } catch (IOException | ClassNotFoundException e) {

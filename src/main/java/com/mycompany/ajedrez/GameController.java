@@ -12,10 +12,14 @@ import com.mycompany.ajedrez.server.Client;
 import com.mycompany.ajedrez.server.Movement;
 import com.mycompany.ajedrez.server.Room;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,19 +81,16 @@ public class GameController {
 
     private void handleClick(int x, int y) {
         if (selectedX == -1 && selectedY == -1) {
-            selectPiece(y, x, true);
+            selectPiece(y, x);
         } else {
             movePiece(y, x, true);
         }
     }
 
-    public void selectPiece(int y, int x, boolean isMyPiece) {
+    public void selectPiece(int y, int x) {
         Piece piece = board.getPiece(y, x);
-        if (piece == null) return;
-
         String miColor = room.getPlayers().get(currentUser);
-
-        if (isMyPiece && piece.getColor().equals(miColor)) {
+        if (piece != null && piece.getColor().equals(miColor)) {
             selectedX = x;
             selectedY = y;
             validMoves = calculateValidMoves(y, x);
@@ -118,12 +119,10 @@ public class GameController {
             animationManager.startAnimation();
             hudPanel.repaint();
             boardPanel.repaint();
+            posicionPiezaX = x;
+            posicionPiezaY = y;
+            System.out.println("Pieza seleccionada: " + piece.getSymbol() + " en (" + y + ", " + x + ")");
         }
-
-        posicionPiezaX = x;
-        posicionPiezaY = y;
-
-        System.out.println("Pieza seleccionada: " + piece.getSymbol() + " en (" + y + ", " + x + ")");
     }
 
     public void movePiece(int y, int x, boolean isMyPiece) {
@@ -145,6 +144,11 @@ public class GameController {
         if (selectedPiece == null) return;
 
         // Verificar si hay una pieza en la casilla de destino
+
+        System.out.println("Coordenada y=" + y + ", x=" + x);
+        posicionMovimientoX = x;
+        posicionMovimientoY = y;
+
         Piece targetPiece = board.getPiece(y, x);
         if (targetPiece != null && !targetPiece.getColor().equals(selectedPiece.getColor())) {
             // Incrementar el contador de capturas
@@ -162,8 +166,6 @@ public class GameController {
 
         // Mover la pieza
         board.movePiece(selectedY, selectedX, y, x);
-        posicionMovimientoX = x;
-        posicionMovimientoY = y;
         clearSelection();
 
         // Si es mi movimiento, lo envío al servidor
@@ -173,7 +175,7 @@ public class GameController {
         }
     }
 
-    private void endGame(String winningColor) {
+    public void endGame(String winningColor) {
         // Crear un JDialog para mostrar la imagen de victoria
         JDialog victoryDialog = new JDialog();
         victoryDialog.setModal(false); // Diálogo no modal
@@ -183,9 +185,8 @@ public class GameController {
         // Cargar la imagen de victoria
         Image originalImage = spriteManager.getVictoryImage(winningColor);
 
-        // Definir el nuevo tamaño deseado (por ejemplo, el doble del tamaño original)
-        int newWidth = originalImage.getWidth(null) * 15; // Aumentar el ancho al doble
-        int newHeight = originalImage.getHeight(null) * 15; // Aumentar la altura al doble
+        int newWidth = originalImage.getWidth(null) * 15;
+        int newHeight = originalImage.getHeight(null) * 15;
 
         // Escalar la imagen
         Image scaledImage = originalImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
@@ -288,6 +289,23 @@ public class GameController {
         System.out.println("Es tu turno: " + myTurn);
     }
 
+    public void playSound(String soundFile) {
+        try {
+            File soundPath = new File(soundFile);
+            if (soundPath.exists()) {
+                AudioInputStream audioInput = AudioSystem.getAudioInputStream(soundPath);
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioInput);
+                clip.start();
+            } else {
+                System.err.println("El archivo de sonido no existe: " + soundFile);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
     public boolean getMyTurn() {
         return myTurn;
     }
@@ -298,5 +316,13 @@ public class GameController {
 
     public void setClient(Client client) {
         this.client = client;
+    }
+
+    public void setSelectedX(int selectedX) {
+        this.selectedX = selectedX;
+    }
+
+    public void setSelectedY(int selectedY) {
+        this.selectedY = selectedY;
     }
 }
