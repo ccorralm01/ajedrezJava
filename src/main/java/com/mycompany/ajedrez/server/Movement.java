@@ -7,6 +7,7 @@ public class Movement implements Serializable {
     private int fromY;
     private int toX;
     private int toY;
+    private boolean winMove = false;
 
     public Movement(int fromX, int fromY, int toX, int toY) {
         this.fromX = fromX;
@@ -16,6 +17,12 @@ public class Movement implements Serializable {
     }
 
     // Getters y setters
+
+
+    public boolean isWinMove() {return winMove;}
+
+    public void setWinMove(boolean winMove) {this.winMove = winMove;}
+
     public int getFromX() {
         return fromX;
     }

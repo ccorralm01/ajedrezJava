@@ -6,9 +6,6 @@ import com.mycompany.ajedrez.menuComponents.MenuComponent;
 import com.mycompany.ajedrez.menuComponents.UIUtils;
 
 import javax.swing.*;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.PlainDocument;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -16,7 +13,6 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.Properties;
 
 public class OptionPanel extends JPanel {
@@ -74,37 +70,47 @@ public class OptionPanel extends JPanel {
         });
     }
 
-    private void cargarDatosGuardados() {
+    public void cargarDatosGuardados() {
         Properties props = new Properties();
         Path path = Paths.get(SERVER_DATA_PATH);
 
-        // Si el archivo no existe, crearlo con valores por defecto
+        // Si el archivo no existe, crearlo inmediatamente
         if (!Files.exists(path)) {
             props.setProperty("ip", "127.0.0.1"); // IP por defecto
-            props.setProperty("puerto", "5000");  // Puerto por defecto
+            props.setProperty("puerto", "6666");  // Puerto por defecto
 
             try (OutputStream output = Files.newOutputStream(path)) {
-                props.store(output, "Server Configuration"); // Crear el archivo con valores por defecto
+                props.store(output, "Server Configuration");
+                output.flush(); // ⚡ Fuerza la escritura inmediata
+                System.out.println("Archivo de configuración creado inmediatamente.");
             } catch (IOException e) {
                 System.err.println("Error al crear el archivo de configuración: " + e.getMessage());
             }
         }
 
-        // Cargar los datos desde el archivo (ya sea el recién creado o uno existente)
+        // 🔹 Verificar si el archivo ya existe antes de continuar
+        if (!Files.exists(path)) {
+            System.err.println("❌ El archivo de configuración no se creó correctamente.");
+            return;
+        }
+
+        // Cargar los datos desde el archivo
         try (InputStream input = Files.newInputStream(path)) {
-            props.load(input); // Cargar las propiedades desde el archivo
+            props.load(input);
+            String ip = props.getProperty("ip", "127.0.0.1");
+            String puerto = props.getProperty("puerto", "5000");
 
-            // Obtener los valores de las propiedades
-            String ip = props.getProperty("ip", "127.0.0.1"); // Valor por defecto si no existe
-            String puerto = props.getProperty("puerto", "5000"); // Valor por defecto si no existe
-
-            // Establecer los valores en los campos de texto
             inputIp.setText(ip);
             inputPuerto.setText(puerto);
+
+            System.out.println("✅ Datos cargados correctamente desde el archivo.");
+
         } catch (IOException e) {
             System.err.println("Error al leer el archivo de configuración: " + e.getMessage());
         }
     }
+
+
 
     private void guardarDatos(String ip, String puerto) {
         Properties props = new Properties();

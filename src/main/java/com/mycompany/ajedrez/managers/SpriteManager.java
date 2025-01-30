@@ -92,8 +92,8 @@ public class SpriteManager {
         return menuSprites[row][col];
     }
 
-    public BufferedImage getVictoryImage(String winningColor) {
-        String imagePath = "src/res/win.png"; // Ruta de la imagen
+    public BufferedImage getVictoryImage(String winType) {
+        String imagePath = "src/res/"+winType+".png"; // Ruta de la imagen
         try {
             return ImageIO.read(new File(imagePath));
         } catch (IOException e) {

@@ -16,11 +16,16 @@ public class MenuPanel extends JLayeredPane {
     private MenuComponent button3; // Nuevo botón para opciones
     private SpriteManager spriteManager;
     private JFrame parentFrame; // Referencia a la ventana principal
+    private MultijugadorPanel multijugadorPanel;
+    private OptionPanel optionPanel;
 
     public MenuPanel(SpriteManager spriteManager, JFrame parentFrame) {
         this.spriteManager = spriteManager;
         this.parentFrame = parentFrame; // Guardar la referencia a la ventana principal
         setPreferredSize(new Dimension(768, 832)); // Tamaño del panel del menú
+        multijugadorPanel = new MultijugadorPanel(spriteManager, parentFrame);
+        optionPanel = new OptionPanel(spriteManager, parentFrame);
+        optionPanel.cargarDatosGuardados();
 
         // Establecer el color de fondo azul pastel
         Color azulPastel = new Color(173, 216, 230); // Código RGB para azul pastel
@@ -138,18 +143,12 @@ public class MenuPanel extends JLayeredPane {
     }
 
     private void cargarMultijugadorPanel() {
-        // Crear el panel de multijugador
-        MultijugadorPanel multijugadorPanel = new MultijugadorPanel(spriteManager, parentFrame);
-
         // Cambiar el contenido de la ventana principal
         parentFrame.setContentPane(multijugadorPanel);
         parentFrame.revalidate(); // Actualizar la ventana
     }
 
     private void cargarOptionPanel() {
-        // Crear el panel de opciones
-        OptionPanel optionPanel = new OptionPanel(spriteManager, parentFrame);
-
         // Cambiar el contenido de la ventana principal
         parentFrame.setContentPane(optionPanel);
         parentFrame.revalidate(); // Actualizar la ventana

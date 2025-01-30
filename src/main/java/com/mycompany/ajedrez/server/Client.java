@@ -70,9 +70,8 @@ public class Client {
                     // Recibo turno del contrario
                     System.out.println("Esperando movimiento del contrario...");
                     Movement movimientoRecibido = (Movement) entrada.readObject();
-                    System.out.println("Movimiento del jugador contrario recibido: " + transformarMovement(movimientoRecibido));
+                    System.out.println("Movimiento del jugador contrario recibido: " + transformarMovement(movimientoRecibido) + "Es ganador?: " + transformarMovement(movimientoRecibido).isWinMove());
                     Movement movimientoEspejo = transformarMovement(movimientoRecibido);
-                    // gameController.selectPiece(movimientoEspejo.getFromY(), movimientoEspejo.getFromX());
                     gameController.setSelectedX(movimientoEspejo.getFromX());
                     gameController.setSelectedY(movimientoEspejo.getFromY());
                     gameController.movePiece(movimientoEspejo.getToY(), movimientoEspejo.getToX(), false);

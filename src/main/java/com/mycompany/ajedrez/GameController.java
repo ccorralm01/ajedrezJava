@@ -41,8 +41,10 @@ public class GameController {
     private int posicionMovimientoX;
     private int posicionMovimientoY;
     private Client client;
-
+    private boolean winMove = false;
     private Movement lastMovement;
+    private String miColor;
+    private boolean gameOver = false;
 
     public GameController(Board board, BoardPanel boardPanel, HudPanel hudPanel, CapturesPanel capturesPanel, SpriteManager spriteManager, Room room, String usuario) {
         this.board = board;
@@ -80,6 +82,7 @@ public class GameController {
     }
 
     private void handleClick(int x, int y) {
+        if (gameOver) return; // Evitar interacción si el juego terminó
         if (selectedX == -1 && selectedY == -1) {
             selectPiece(y, x);
         } else {
@@ -89,7 +92,7 @@ public class GameController {
 
     public void selectPiece(int y, int x) {
         Piece piece = board.getPiece(y, x);
-        String miColor = room.getPlayers().get(currentUser);
+        miColor = room.getPlayers().get(currentUser);
         if (piece != null && piece.getColor().equals(miColor)) {
             selectedX = x;
             selectedY = y;
@@ -125,6 +128,7 @@ public class GameController {
         }
     }
 
+
     public void movePiece(int y, int x, boolean isMyPiece) {
         // Verificar que las coordenadas estén dentro del rango válido
         if (y < 0 || y > 7 || x < 0 || x > 7) {
@@ -143,8 +147,6 @@ public class GameController {
         Piece selectedPiece = board.getPiece(selectedY, selectedX);
         if (selectedPiece == null) return;
 
-        // Verificar si hay una pieza en la casilla de destino
-
         System.out.println("Coordenada y=" + y + ", x=" + x);
         posicionMovimientoX = x;
         posicionMovimientoY = y;
@@ -155,11 +157,21 @@ public class GameController {
             capturesPanel.getCaptures().incrementCaptureCount(targetPiece);
             capturesPanel.repaint();
 
-            // Si la pieza capturada es un rey, terminar el juego
+            // Si la pieza capturada es un rey, marcar la victoria
             if (targetPiece.getType() == Piece.KING) {
+                winMove = true; // Se ha capturado al rey
+                System.out.println("¡El rey ha sido capturado! Fin del juego.");
+                // Mover la pieza antes de finalizar el juego
                 board.movePiece(selectedY, selectedX, y, x);
                 clearSelection();
                 endGame(selectedPiece.getColor());
+
+                // Enviar el movimiento al servidor indicando victoria
+                if (isMyPiece) {
+                    lastMovement = new Movement(posicionPiezaX, posicionPiezaY, posicionMovimientoX, posicionMovimientoY);
+                    lastMovement.setWinMove(true); // Suponiendo que Movement tenga este atributo
+                    client.setMovimientoPieza(lastMovement);
+                }
                 return;
             }
         }
@@ -171,40 +183,43 @@ public class GameController {
         // Si es mi movimiento, lo envío al servidor
         if (isMyPiece) {
             lastMovement = new Movement(posicionPiezaX, posicionPiezaY, posicionMovimientoX, posicionMovimientoY);
+            lastMovement.setWinMove(winMove); // Enviar estado de victoria al servidor
             client.setMovimientoPieza(lastMovement);
         }
     }
 
-    public void endGame(String winningColor) {
-        // Crear un JDialog para mostrar la imagen de victoria
-        JDialog victoryDialog = new JDialog();
-        victoryDialog.setModal(false); // Diálogo no modal
-        victoryDialog.setUndecorated(true); // Eliminar la barra de título
-        victoryDialog.setBackground(new Color(0, 0, 0, 0)); // Fondo transparente
 
-        // Cargar la imagen de victoria
-        Image originalImage = spriteManager.getVictoryImage(winningColor);
+    public void endGame(String capturedKingColor) {
+        gameOver = true; // Marcar el juego como finalizado
+        boardPanel.setEnabled(false); // Deshabilitar la interacción del tablero
+        setMyTurn(false);
 
-        int newWidth = originalImage.getWidth(null) * 15;
-        int newHeight = originalImage.getHeight(null) * 15;
+        // Mostrar mensaje de victoria o derrota
+        boolean isVictory = !miColor.equals(capturedKingColor);
+        Image originalImage = spriteManager.getVictoryImage(isVictory ? "win" : "lose");
 
         // Escalar la imagen
+        int newWidth = originalImage.getWidth(null) * 15;
+        int newHeight = originalImage.getHeight(null) * 15;
         Image scaledImage = originalImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
 
-        // Crear un ImageIcon con la imagen escalada
-        ImageIcon victoryIcon = new ImageIcon(scaledImage);
-        JLabel victoryLabel = new JLabel(victoryIcon);
-        victoryDialog.add(victoryLabel);
+        // Crear JLabel para mostrar la imagen de resultado
+        JLabel resultLabel = new JLabel(new ImageIcon(scaledImage));
+        resultLabel.setVisible(true);
 
-        // Centrar el diálogo en la pantalla
-        victoryDialog.pack();
-        victoryDialog.setLocationRelativeTo(null); // Centrar en la pantalla
-        victoryDialog.setVisible(true);
+        // Obtener JLayeredPane y posicionar la imagen
+        JLayeredPane layeredPane = (JLayeredPane) boardPanel.getParent();
+        int imageX = (layeredPane.getWidth() - newWidth) / 2;
+        int imageY = (layeredPane.getHeight() - newHeight) / 2;
+        resultLabel.setBounds(imageX, imageY, newWidth, newHeight);
 
-        // Deshabilitar el tablero
-        boardPanel.setEnabled(false);
-        setMyTurn(false);
+        // Añadir al panel y actualizar
+        layeredPane.add(resultLabel, JLayeredPane.POPUP_LAYER);
+        layeredPane.revalidate();
+        layeredPane.repaint();
     }
+
+
 
     private void clearSelection() {
         selectedX = -1;

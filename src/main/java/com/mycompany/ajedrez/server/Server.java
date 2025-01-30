@@ -131,7 +131,6 @@ public class Server implements Runnable {
                             // Esperar movimiento del segundo jugador
                             Movement movimientoSegundoJugador = (Movement) entradaJugadorSegundoTurno.readObject();
                             System.out.println("Movimiento del segundo jugador recibido: " + movimientoSegundoJugador);
-
                             // Enviar movimiento al primer jugador
                             salidaJugadorPrimerTurno.writeObject(movimientoSegundoJugador);
                             System.out.println("Movimiento enviado al primer jugador: " + movimientoSegundoJugador);

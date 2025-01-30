@@ -11,9 +11,15 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 public class MultijugadorPanel extends JPanel {
     private Background background;
@@ -104,7 +110,7 @@ public class MultijugadorPanel extends JPanel {
     }
 
     private void iniciarJuego() {
-        // Validar los inputs (aquí puedes agregar tu lógica de validación)
+        // Validar los inputs
         String usuario = inputUsuario.getText();
         String servidor = inputServidor.getText();
         String clave = inputClave.getText();
@@ -114,15 +120,52 @@ public class MultijugadorPanel extends JPanel {
             return;
         }
 
-        // TODO Validar inputs y cargar el juego
+        // Leer configuración desde el archivo
+        Properties config = leerConfiguracion("src/res/serverdata.txt");
+        if (config == null) {
+            JOptionPane.showMessageDialog(this, "Error al cargar la configuración del servidor.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String ip = config.getProperty("ip", "127.0.0.1");
+        int puerto;
+        try {
+            puerto = Integer.parseInt(config.getProperty("puerto", "6666"));
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "El puerto en el archivo de configuración no es válido.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Inicializar la sala y el cliente con la IP y el puerto leídos
         Map<String, String> jugadores = new HashMap<>();
         jugadores.put(usuario, ""); // El color se asignará más tarde
         newRoom = new Room(servidor, clave, jugadores);
-        cliente = new Client("127.0.0.1", 6666);
+        cliente = new Client(ip, puerto);
         cliente.setMjPanel(this);
-        // cliente.iniciar();
+
+        // Iniciar cliente en un hilo separado
         new Thread(() -> cliente.iniciar()).start();
     }
+
+    private Properties leerConfiguracion(String filePath) {
+        Properties props = new Properties();
+        Path path = Paths.get(filePath);
+
+        // Verificar si el archivo existe
+        if (!Files.exists(path)) {
+            return null;
+        }
+
+        // Leer el archivo de configuración
+        try (InputStream input = Files.newInputStream(path)) {
+            props.load(input);
+            return props;
+        } catch (IOException e) {
+            System.err.println("Error al leer el archivo de configuración: " + e.getMessage());
+            return null;
+        }
+    }
+
 
     public void onRoomSetUp(Room room) {
         String versus;
