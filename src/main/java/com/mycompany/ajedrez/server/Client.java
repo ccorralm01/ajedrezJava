@@ -37,8 +37,8 @@ public class Client {
             System.out.println("Room enviada: " + room.getRoomName());
 
             ObjectInputStream entrada = new ObjectInputStream(socket.getInputStream());
-            System.out.println("Entrada creada");
             setUpRoom = (Room) entrada.readObject();
+            System.out.println("Room actualizada: " + setUpRoom);
             mjPanel.onRoomSetUp(setUpRoom);
 
             asignarTurno();
@@ -47,8 +47,7 @@ public class Client {
             while (true) {
                 if (gameController.getMyTurn()) {
                     System.out.println("Esperando movimiento...");
-                    // simularTurno();
-
+                    simularTurno();
                     // Esperar a que movimientoPieza tenga un valor
                     synchronized (lock) {
                         while (movimientoPieza == null) {

@@ -2,6 +2,7 @@ package com.mycompany.ajedrez.server;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,18 +13,21 @@ public class Server implements Runnable {
     private ServerSocket servidorSocket;
 
     private ObjectInputStream primeraEntrada;
+    ArrayList<ClienteConectado> clientesConectados;
+    ClienteConectado primerJugadorConectado;
+    ClienteConectado segundoJugadorConectado;
 
-    private Socket socketPrimerJugador;
-    private Socket socketSegundoJugador;
-    ObjectOutputStream salidaPrimerJugador;
-    ObjectOutputStream salidaSegundoJugador;
-    ObjectInputStream entradaPrimerJugador;
-    ObjectInputStream entradaSegundoJugador;
+    ObjectInputStream entradaJugadorPrimerTurno;
+    ObjectInputStream entradaJugadorSegundoTurno;
+    ObjectOutputStream salidaJugadorPrimerTurno;
+    ObjectOutputStream salidaJugadorSegundoTurno;
 
     public Server(int puerto) {
         this.puerto = puerto;
         this.salasPendientes = new HashMap<>();
         this.jugadoresEnSala = new HashMap<>();
+        this.clientesConectados = new ArrayList<>();
+
     }
 
     @Override
@@ -39,6 +43,8 @@ public class Server implements Runnable {
                 // Recepción de la Room
                 ObjectInputStream entrada = new ObjectInputStream(socket.getInputStream());
                 Room room = (Room) entrada.readObject();
+
+                clientesConectados.add(new ClienteConectado(socket, entrada, null, null));
 
                 System.out.println("Sala recibida: " + room.getRoomName());
 
@@ -59,83 +65,90 @@ public class Server implements Runnable {
                                 .orElse(null);
 
                         jugadoresEnSala.put(nombreJugador2, socket);
-                        // Jugadores en sala: {cesar=Socket[addr=/127.0.0.1,port=62308,localport=6666], paco=Socket[addr=/127.0.0.1,port=62309,localport=6666]}
 
                         salaPendiente.asignarPrimeraJugada();
                         String playerStart = salaPendiente.getPlayerStart();
 
                         System.out.println("Jugadores en sala: " + jugadoresEnSala);
 
-                        if(primeraEntrada == entrada) {
-                            System.out.println("diferentes");
-                            System.out.println(primeraEntrada);
-                            System.out.println(entrada);
-                        } else {
-                            System.out.println("No diferentes");
-                        }
+                        ObjectOutputStream salida1 = new ObjectOutputStream(salaPendiente.getSocket().getOutputStream());
+                        ObjectOutputStream salida2 = new ObjectOutputStream(socket.getOutputStream());
+                        clientesConectados.getFirst().setSalida(salida1);
+                        clientesConectados.getLast().setSalida(salida2);
+                        clientesConectados.getFirst().setRoom(salaPendiente);
+                        clientesConectados.getLast().setRoom(salaPendiente);
 
-                        for (Map.Entry<String, Socket> entry : jugadoresEnSala.entrySet()) {
-                            String jugador = entry.getKey();
-                            Socket socketJugador = entry.getValue();
-                            if (!jugador.equals(playerStart)) {
-                                socketSegundoJugador = socketJugador;
-                                salidaSegundoJugador = new ObjectOutputStream(socketSegundoJugador.getOutputStream());
-                                // Si el socket que se usa councide con el que he recorrido, significa que la entrada corresponde a este, si no se le asigna una entrada nueva
-                                // entradaSegundoJugador = socket == socketJugador ? entrada : new ObjectInputStream(socketJugador.getInputStream());
-                            } else {
-                                socketPrimerJugador = socketJugador;
-                                salidaPrimerJugador = new ObjectOutputStream(socketPrimerJugador.getOutputStream());
-                                // Si el socket que se usa councide con el que he recorrido, significa que la entrada corresponde a este, si no se le asigna una entrada nueva
-                                // entradaPrimerJugador = socket == socketJugador ? entrada : new ObjectInputStream(socketJugador.getInputStream());
-                            }
-                        }
+                        primerJugadorConectado = clientesConectados.getFirst();
+                        segundoJugadorConectado = clientesConectados.getLast();
 
-                        salidaSegundoJugador.writeObject(salaPendiente);
-                        salidaPrimerJugador.writeObject(salaPendiente);
+                        System.out.println("Clientes conectados: " + clientesConectados);
+                        // Enviar la sala actualizada a ambos jugadores
+                        primerJugadorConectado.getSalida().writeObject(salaPendiente);
+                        segundoJugadorConectado.getSalida().writeObject(salaPendiente);
                         System.out.println("Sala creada: " + salaPendiente);
-
                         // Eliminar la sala pendiente
                         salasPendientes.remove(room.getRoomName());
 
-                        System.out.println("Socket primer jugador: " + socketPrimerJugador);
-                        System.out.println("Entrada primer jugador: " + entradaPrimerJugador);
-                        System.out.println("Salida primer jugador: " + salidaPrimerJugador);
+                        // Determinar que jugador es el que empieza, el 1ro que se conectó o el 2do
+                        Socket socketDelJugadorQueEmpieza = null;
+                        for (Map.Entry<String, Socket> entry : jugadoresEnSala.entrySet()) {
+                            if (entry.getKey().equals(playerStart)) {
+                                socketDelJugadorQueEmpieza = entry.getValue();
+                                break;
+                            }
+                        }
+                        if(primerJugadorConectado.getSocket() == socketDelJugadorQueEmpieza) {
+                            System.out.println("Empieza el que se conectó primero");
 
-                        System.out.println("Socket segundo jugador: " + socketSegundoJugador);
-                        System.out.println("Entrada segundo jugador: " + entradaSegundoJugador);
-                        System.out.println("Salida segundo jugador: " + salidaSegundoJugador);
+                            // El primer turno lo tiene el primer jugador conectado
+                            entradaJugadorPrimerTurno = primerJugadorConectado.getEntrada();
+                            salidaJugadorPrimerTurno = primerJugadorConectado.getSalida();
+                            entradaJugadorSegundoTurno = segundoJugadorConectado.getEntrada();
+                            salidaJugadorSegundoTurno = segundoJugadorConectado.getSalida();
+
+                        } else {
+                            System.out.println("Empieza el que se conectó después");
+
+                            // El primer turno lo tiene el segundo jugador conectado
+                            entradaJugadorPrimerTurno = segundoJugadorConectado.getEntrada();
+                            salidaJugadorPrimerTurno = segundoJugadorConectado.getSalida();
+                            entradaJugadorSegundoTurno = primerJugadorConectado.getEntrada();
+                            salidaJugadorSegundoTurno = primerJugadorConectado.getSalida();
+                        }
+
 
                         // Primer movimiento: el jugador con el turno inicial hace el primer movimiento
                         System.out.println("Esperando primer movimiento...");
-                        Movement primerMovimiento = (Movement) entradaPrimerJugador.readObject();
+                        Movement primerMovimiento = (Movement) entradaJugadorPrimerTurno.readObject();
                         System.out.println("Primer movimiento recibido: " + primerMovimiento);
 
                         // Enviar el primer movimiento al segundo jugador
-                        salidaSegundoJugador.writeObject(primerMovimiento);
+                        salidaJugadorSegundoTurno.writeObject(primerMovimiento);
                         System.out.println("Primer movimiento enviado al segundo jugador: " + primerMovimiento);
 
+                        /*
                         // Alternar los turnos
                         while (true) {
-                            // Esperar movimiento del primer jugador (ya realizado, lo recibe del segundo)
-                            Movement movimientoSegundoJugador = (Movement) entrada.readObject();
+                            // Esperar movimiento del segundo jugador
+                            Movement movimientoSegundoJugador = (Movement) entradaSegundoJugador.readObject();
                             System.out.println("Movimiento del segundo jugador recibido: " + movimientoSegundoJugador);
 
                             // Enviar movimiento al primer jugador
-                            ObjectOutputStream salidaPrimerJugador = new ObjectOutputStream(socketPrimerJugador.getOutputStream());
                             salidaPrimerJugador.writeObject(movimientoSegundoJugador);
                             System.out.println("Movimiento enviado al primer jugador: " + movimientoSegundoJugador);
 
                             // Esperar movimiento del primer jugador
-                            Movement movimientoPrimerJugador = (Movement) entrada.readObject();
+                            Movement movimientoPrimerJugador = (Movement) entradaPrimerJugador.readObject();
                             System.out.println("Movimiento del primer jugador recibido: " + movimientoPrimerJugador);
 
                             // Enviar movimiento al segundo jugador
-                            ObjectOutputStream salidaSegundoJugadorTurno = new ObjectOutputStream(socketSegundoJugador.getOutputStream());
-                            salidaSegundoJugadorTurno.writeObject(movimientoPrimerJugador);
+                            salidaSegundoJugador.writeObject(movimientoPrimerJugador);
                             System.out.println("Movimiento enviado al segundo jugador: " + movimientoPrimerJugador);
                         }
 
-                        // new Thread(new JuegoHilo( jugadoresEnSala, playerStart )).start();
+                         */
+
+
                     } else {
                         // Contraseña incorrecta
                         ObjectOutputStream salida = new ObjectOutputStream(socket.getOutputStream());
@@ -147,7 +160,7 @@ public class Server implements Runnable {
                     salasPendientes.put(room.getRoomName(), room);
                     String jugador = room.getPlayers().entrySet().iterator().next().getKey();
                     jugadoresEnSala.put(jugador, socket);
-                    primeraEntrada = entrada;
+                    primeraEntrada = entrada; // Guardar la entrada del primer jugador
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
