@@ -41,12 +41,18 @@ public class Board {
         int myColor = isWhite ? Piece.WHITE : Piece.BLACK;
         int enemyColor = isWhite ? Piece.BLACK : Piece.WHITE;
 
-        // Colocar las piezas enemigas
+        // Ajustar la posición de la reina y el rey según el color del jugador
+        int myQueenPos = isWhite ? 3 : 4;
+        int myKingPos = isWhite ? 4 : 3;
+        int enemyQueenPos = isWhite ? 3 : 4;
+        int enemyKingPos = isWhite ? 4 : 3;
+
+        // Colocar las piezas enemigas (negro)
         board[0][0] = new Rook(enemyPieces, spriteManager.getPieceSprite(enemyColor, Piece.ROOK));
         board[0][1] = new Knight(enemyPieces, spriteManager.getPieceSprite(enemyColor, Piece.KNIGHT));
         board[0][2] = new Bishop(enemyPieces, spriteManager.getPieceSprite(enemyColor, Piece.BISHOP));
-        board[0][4] = new King(enemyPieces, spriteManager.getPieceSprite(enemyColor, Piece.QUEEN));
-        board[0][3] = new Queen(enemyPieces, spriteManager.getPieceSprite(enemyColor, Piece.KING));
+        board[0][enemyQueenPos] = new Queen(enemyPieces, spriteManager.getPieceSprite(enemyColor, Piece.QUEEN)); // Posición correcta
+        board[0][enemyKingPos] = new King(enemyPieces, spriteManager.getPieceSprite(enemyColor, Piece.KING));   // Posición correcta
         board[0][5] = new Bishop(enemyPieces, spriteManager.getPieceSprite(enemyColor, Piece.BISHOP));
         board[0][6] = new Knight(enemyPieces, spriteManager.getPieceSprite(enemyColor, Piece.KNIGHT));
         board[0][7] = new Rook(enemyPieces, spriteManager.getPieceSprite(enemyColor, Piece.ROOK));
@@ -54,12 +60,12 @@ public class Board {
             board[1][i] = new Pawn(enemyPieces, spriteManager.getPieceSprite(enemyColor, Piece.PAWN));
         }
 
-        // Colocar las piezas aliadas
+        // Colocar las piezas aliadas (blanco)
         board[7][0] = new Rook(myPieces, spriteManager.getPieceSprite(myColor, Piece.ROOK));
         board[7][1] = new Knight(myPieces, spriteManager.getPieceSprite(myColor, Piece.KNIGHT));
         board[7][2] = new Bishop(myPieces, spriteManager.getPieceSprite(myColor, Piece.BISHOP));
-        board[7][3] = new Queen(myPieces, spriteManager.getPieceSprite(myColor, Piece.QUEEN));
-        board[7][4] = new King(myPieces, spriteManager.getPieceSprite(myColor, Piece.KING));
+        board[7][myQueenPos] = new Queen(myPieces, spriteManager.getPieceSprite(myColor, Piece.QUEEN)); // Posición correcta
+        board[7][myKingPos] = new King(myPieces, spriteManager.getPieceSprite(myColor, Piece.KING));   // Posición correcta
         board[7][5] = new Bishop(myPieces, spriteManager.getPieceSprite(myColor, Piece.BISHOP));
         board[7][6] = new Knight(myPieces, spriteManager.getPieceSprite(myColor, Piece.KNIGHT));
         board[7][7] = new Rook(myPieces, spriteManager.getPieceSprite(myColor, Piece.ROOK));
