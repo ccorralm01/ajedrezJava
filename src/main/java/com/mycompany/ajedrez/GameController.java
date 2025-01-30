@@ -196,7 +196,7 @@ public class GameController {
 
         // Mostrar mensaje de victoria o derrota
         boolean isVictory = !miColor.equals(capturedKingColor);
-        Image originalImage = spriteManager.getVictoryImage(isVictory ? "win" : "lose");
+        Image originalImage = spriteManager.getVictoryImage(isVictory ? "lose" : "win");
 
         // Escalar la imagen
         int newWidth = originalImage.getWidth(null) * 15;
