@@ -1,3 +1,7 @@
+/**
+ * Panel que representa el tablero del juego de ajedrez.
+ * Se encarga de dibujar el tablero, las piezas y los movimientos de captura.
+ */
 package com.mycompany.ajedrez.panels;
 
 import com.mycompany.ajedrez.gameComponents.Board;
@@ -16,6 +20,12 @@ public class BoardPanel extends JPanel {
     private List<Point> killMoves = new ArrayList<>(); // Lista de movimientos de captura
     private Image killHudImage; // Imagen del Hud.KILL
 
+    /**
+     * Constructor de BoardPanel.
+     *
+     * @param board Tablero de ajedrez a representar
+     * @param spriteManager Administrador de sprites para cargar imágenes
+     */
     public BoardPanel(Board board, SpriteManager spriteManager) {
         this.board = board;
         this.spriteManager = spriteManager;
@@ -24,6 +34,8 @@ public class BoardPanel extends JPanel {
 
     /**
      * Establece los movimientos de captura (Hud.KILL) que se deben dibujar.
+     *
+     * @param killMoves Lista de posiciones donde se mostrarán los movimientos de captura
      */
     public void setKillMoves(List<Point> killMoves) {
         this.killMoves = killMoves;
@@ -32,11 +44,12 @@ public class BoardPanel extends JPanel {
 
     /**
      * Establece la imagen del Hud.KILL.
+     *
+     * @param killHudImage Imagen que representa el Hud.KILL
      */
     public void setKillHudImage(Image killHudImage) {
         this.killHudImage = killHudImage;
     }
-
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -46,6 +59,11 @@ public class BoardPanel extends JPanel {
         drawPieces(g); // Dibujar las piezas
     }
 
+    /**
+     * Dibuja el tablero de ajedrez.
+     *
+     * @param g Objeto Graphics para dibujar
+     */
     private void drawBoard(Graphics g) {
         int tileSize = 64; // Tamaño de cada casilla en píxeles
         for (int i = 0; i < 12; i++) { // Tablero de 12x12
@@ -56,6 +74,11 @@ public class BoardPanel extends JPanel {
         }
     }
 
+    /**
+     * Dibuja las piezas en el tablero.
+     *
+     * @param g Objeto Graphics para dibujar
+     */
     private void drawPieces(Graphics g) {
         int tileSize = 64; // Tamaño de cada casilla en píxeles
         int offset = 2 * tileSize; // Desplazamiento para centrar las fichas en el tablero de 8x8
@@ -74,6 +97,8 @@ public class BoardPanel extends JPanel {
 
     /**
      * Dibuja el Hud.KILL en las posiciones correspondientes.
+     *
+     * @param g Objeto Graphics para dibujar
      */
     private void drawKillHud(Graphics g) {
         if (killHudImage != null) {

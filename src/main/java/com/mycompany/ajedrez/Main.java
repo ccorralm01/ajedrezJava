@@ -7,10 +7,6 @@ import javax.swing.*;
 import java.awt.*;
 
 public class Main {
-
-    // TODO comprobar victoria
-    // TODO sonido al comer (opcion)
-
     public void runMain() {
         // Crear el SpriteManager con las rutas de los archivos de sprites
         SpriteManager spriteManager = new SpriteManager("src/res/Board.png", "src/res/pieces.png", "src/res/menu.png");

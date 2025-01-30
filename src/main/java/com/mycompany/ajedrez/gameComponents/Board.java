@@ -6,36 +6,72 @@ import com.mycompany.ajedrez.server.Room;
 
 import java.util.Objects;
 
+/**
+ * La clase Board representa el tablero de ajedrez y gestiona la colocación y movimiento de las piezas.
+ * Contiene una matriz de 8x8 que representa las casillas del tablero y métodos para manipular las piezas.
+ */
 public class Board {
     private Piece[][] board;
     private SpriteManager spriteManager;
     private String myPieces;
     private String enemyPieces;
 
+    /**
+     * Constructor de la clase Board. Inicializa el tablero y coloca las piezas en sus posiciones iniciales.
+     *
+     * @param spriteManager El gestor de sprites para cargar las imágenes de las piezas.
+     * @param usuario       El nombre del usuario que controla las piezas aliadas.
+     * @param versus        El nombre del oponente que controla las piezas enemigas.
+     * @param room          La sala de juego que contiene la información de los jugadores y sus piezas.
+     */
     public Board(SpriteManager spriteManager, String usuario, String versus, Room room) {
         this.spriteManager = spriteManager;
         board = new Piece[8][8];
         myPieces = room.getPlayers().get(usuario);
         enemyPieces = room.getPlayers().get(versus);
-        // System.out.println("Piezas aliadas: " + myPieces);
-        // System.out.println("Piezas enemigas: " + enemyPieces);
         initializeBoard();
     }
 
+    /**
+     * Obtiene la pieza en la posición especificada del tablero.
+     *
+     * @param x La coordenada x (fila) de la posición.
+     * @param y La coordenada y (columna) de la posición.
+     * @return La pieza en la posición (x, y), o null si no hay ninguna pieza.
+     */
     public Piece getPiece(int x, int y) {
         return board[x][y];
     }
 
+    /**
+     * Coloca una pieza en la posición especificada del tablero.
+     *
+     * @param x     La coordenada x (fila) de la posición.
+     * @param y     La coordenada y (columna) de la posición.
+     * @param piece La pieza que se va a colocar en el tablero.
+     */
     public void setPiece(int x, int y, Piece piece) {
         board[x][y] = piece;
     }
 
+    /**
+     * Mueve una pieza desde una posición inicial a una posición final en el tablero.
+     *
+     * @param startX La coordenada x (fila) de la posición inicial.
+     * @param startY La coordenada y (columna) de la posición inicial.
+     * @param endX   La coordenada x (fila) de la posición final.
+     * @param endY   La coordenada y (columna) de la posición final.
+     */
     public void movePiece(int startX, int startY, int endX, int endY) {
         Piece piece = board[startX][startY];
-        board[startX][startY] = null; // Eliminar la pieza de la posición inicial
-        board[endX][endY] = piece;   // Colocar la pieza en la posición final
+        board[startX][startY] = null;
+        board[endX][endY] = piece;
     }
 
+    /**
+     * Inicializa el tablero colocando las piezas en sus posiciones iniciales.
+     * Las piezas se colocan según el color del jugador (blanco o negro).
+     */
     private void initializeBoard() {
         boolean isWhite = Objects.equals(myPieces, "blanco");
         int myColor = isWhite ? Piece.WHITE : Piece.BLACK;

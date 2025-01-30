@@ -3,16 +3,27 @@ package com.mycompany.ajedrez.gameComponents;
 import com.mycompany.ajedrez.Pieces.*;
 import com.mycompany.ajedrez.managers.SpriteManager;
 
+/**
+ * La clase Captures gestiona el registro de piezas capturadas durante el juego.
+ * Utiliza una matriz de 12x2 para almacenar las piezas y sus contadores de capturas.
+ */
 public class Captures {
     private Object[][] captureGrid; // Grid de 12x2 (pieza + contador)
 
+    /**
+     * Constructor de la clase Captures. Inicializa el grid de capturas con las piezas y sus contadores.
+     *
+     * @param spriteManager El gestor de sprites para cargar las imágenes de las piezas.
+     */
     public Captures(SpriteManager spriteManager) {
         captureGrid = new Object[12][2];
         initializeCaptureGrid(spriteManager);
     }
 
     /**
-     * Inicializa el grid con una pieza de cada tipo y color.
+     * Inicializa el grid de capturas con una pieza de cada tipo y color, y establece los contadores a 0.
+     *
+     * @param spriteManager El gestor de sprites para cargar las imágenes de las piezas.
      */
     private void initializeCaptureGrid(SpriteManager spriteManager) {
         // Piezas negras
@@ -39,6 +50,8 @@ public class Captures {
 
     /**
      * Incrementa el contador de capturas para una pieza específica.
+     *
+     * @param piece La pieza que ha sido capturada.
      */
     public void incrementCaptureCount(Piece piece) {
         for (int i = 0; i < 12; i++) {
@@ -51,6 +64,11 @@ public class Captures {
         }
     }
 
+    /**
+     * Obtiene el grid de capturas, que contiene las piezas y sus contadores de capturas.
+     *
+     * @return Una matriz de 12x2 que representa el grid de capturas.
+     */
     public Object[][] getCaptureGrid() {
         return captureGrid;
     }

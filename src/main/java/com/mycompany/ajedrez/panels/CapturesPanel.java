@@ -1,3 +1,7 @@
+/**
+ * Panel que representa las piezas capturadas en el juego de ajedrez.
+ * Se encarga de mostrar las piezas capturadas junto con sus respectivos contadores.
+ */
 package com.mycompany.ajedrez.panels;
 
 import com.mycompany.ajedrez.gameComponents.Captures;
@@ -16,6 +20,12 @@ public class CapturesPanel extends JPanel {
     private Captures captures;
     private SpriteManager spriteManager;
 
+    /**
+     * Constructor de CapturesPanel.
+     *
+     * @param captures Objeto que almacena las piezas capturadas.
+     * @param spriteManager Administrador de sprites para obtener las imágenes de las piezas.
+     */
     public CapturesPanel(Captures captures, SpriteManager spriteManager) {
         this.captures = captures;
         this.spriteManager = spriteManager;
@@ -29,7 +39,9 @@ public class CapturesPanel extends JPanel {
     }
 
     /**
-     * Dibuja las piezas y sus contadores de capturas.
+     * Dibuja las piezas capturadas y sus contadores en el panel.
+     *
+     * @param g Objeto Graphics para realizar el dibujo.
      */
     private void drawCaptures(Graphics g) {
         for (int i = 0; i < ROWS; i++) {
@@ -51,18 +63,38 @@ public class CapturesPanel extends JPanel {
         }
     }
 
+    /**
+     * Obtiene el objeto Captures asociado a este panel.
+     *
+     * @return Objeto Captures que contiene las piezas capturadas.
+     */
     public Captures getCaptures() {
         return captures;
     }
 
+    /**
+     * Establece un nuevo objeto Captures para actualizar las piezas capturadas.
+     *
+     * @param captures Nuevo objeto Captures.
+     */
     public void setCaptures(Captures captures) {
         this.captures = captures;
     }
 
+    /**
+     * Obtiene el administrador de sprites utilizado en el panel.
+     *
+     * @return Objeto SpriteManager.
+     */
     public SpriteManager getSpriteManager() {
         return spriteManager;
     }
 
+    /**
+     * Establece un nuevo administrador de sprites para este panel.
+     *
+     * @param spriteManager Nuevo objeto SpriteManager.
+     */
     public void setSpriteManager(SpriteManager spriteManager) {
         this.spriteManager = spriteManager;
     }

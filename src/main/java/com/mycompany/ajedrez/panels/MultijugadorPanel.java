@@ -21,21 +21,42 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+/**
+ * Clase que representa el panel de multijugador del juego de ajedrez.
+ * Este panel permite a los usuarios ingresar su nombre, el nombre del servidor y la clave
+ * para unirse a una partida multijugador. También incluye botones para iniciar el juego y volver al menú principal.
+ */
 public class MultijugadorPanel extends JPanel {
+    /** Fondo del panel de multijugador. */
     private Background background;
-    private MenuComponent input1;
-    private MenuComponent input2;
-    private MenuComponent input3;
-    private JTextField inputUsuario;
-    private JTextField inputServidor;
-    private JTextField inputClave;
-    private MenuComponent botonEntrar;
-    private MenuComponent botonSalir;
+
+    /** Componentes visuales para los títulos de los campos de entrada. */
+    private MenuComponent input1, input2, input3;
+
+    /** Campos de texto para ingresar el nombre de usuario, servidor y clave. */
+    private JTextField inputUsuario, inputServidor, inputClave;
+
+    /** Botones para entrar al juego y salir al menú principal. */
+    private MenuComponent botonEntrar, botonSalir;
+
+    /** Gestor de sprites utilizado para obtener las imágenes del panel. */
     private SpriteManager spriteManager;
+
+    /** Referencia a la ventana principal del juego. */
     private JFrame parentFrame;
+
+    /** Sala de juego asociada a esta partida multijugador. */
     private Room newRoom;
+
+    /** Cliente que gestiona la conexión con el servidor. */
     private Client cliente;
 
+    /**
+     * Constructor de la clase MultijugadorPanel.
+     *
+     * @param spriteManager Gestor de sprites que proporciona las imágenes del panel.
+     * @param parentFrame   Ventana principal del juego.
+     */
     public MultijugadorPanel(SpriteManager spriteManager, JFrame parentFrame) {
         this.spriteManager = spriteManager;
         this.parentFrame = parentFrame; // Guardar la referencia a la ventana principal
@@ -78,6 +99,12 @@ public class MultijugadorPanel extends JPanel {
         });
     }
 
+    /**
+     * Maneja el evento de clic en los botones.
+     *
+     * @param mouseX Coordenada X del clic.
+     * @param mouseY Coordenada Y del clic.
+     */
     private void handleButtonPress(int mouseX, int mouseY) {
         // Tamaño de cada tile (64x64 píxeles)
         int tileSize = 64;
@@ -95,7 +122,6 @@ public class MultijugadorPanel extends JPanel {
                 mouseY >= botonEntrarY && mouseY <= botonEntrarY + tileSize) {
             botonEntrar.setType(MenuComponent.PRETY); // Cambiar a PRETY BUTTON2
             iniciarJuego();
-
         }
 
         // Verificar si se hizo clic en el botón SALIR
@@ -109,6 +135,9 @@ public class MultijugadorPanel extends JPanel {
         repaint();
     }
 
+    /**
+     * Inicia el juego multijugador validando los campos de entrada y conectándose al servidor.
+     */
     private void iniciarJuego() {
         // Validar los inputs
         String usuario = inputUsuario.getText();
@@ -147,6 +176,12 @@ public class MultijugadorPanel extends JPanel {
         new Thread(() -> cliente.iniciar()).start();
     }
 
+    /**
+     * Lee la configuración del servidor desde un archivo.
+     *
+     * @param filePath Ruta del archivo de configuración.
+     * @return Un objeto Properties con la configuración, o null si hay un error.
+     */
     private Properties leerConfiguracion(String filePath) {
         Properties props = new Properties();
         Path path = Paths.get(filePath);
@@ -166,7 +201,11 @@ public class MultijugadorPanel extends JPanel {
         }
     }
 
-
+    /**
+     * Método llamado cuando la sala está configurada y lista para iniciar el juego.
+     *
+     * @param room La sala de juego configurada.
+     */
     public void onRoomSetUp(Room room) {
         String versus;
         parentFrame.dispose(); // Cerrar la ventana actual
@@ -190,18 +229,11 @@ public class MultijugadorPanel extends JPanel {
         GamePanel gamePanel = new GamePanel(currentUser, versus, inputServidor.getText(), inputClave.getText(), room); // Iniciar el juego
         gamePanel.getGameController().setClient(cliente);
         cliente.setGameController(gamePanel.getGameController());
-        /*
-        SwingUtilities.invokeLater(() -> {
-            GamePanel gamePanel = new GamePanel(currentUser, versus, inputServidor.getText(), inputClave.getText(), room);
-            gamePanel.getGameController().setClient(cliente);
-            cliente.setGameController(gamePanel.getGameController());
-        });
-
-         */
-
     }
 
-
+    /**
+     * Vuelve al menú principal.
+     */
     private void volverAMenuPrincipal() {
         // Cambiar al panel del menú principal
         MenuPanel menuPanel = new MenuPanel(spriteManager, parentFrame);
@@ -209,6 +241,9 @@ public class MultijugadorPanel extends JPanel {
         parentFrame.revalidate(); // Actualizar la ventana
     }
 
+    /**
+     * Maneja el evento de liberación del clic en los botones.
+     */
     private void handleButtonRelease() {
         // Restaurar todos los botones a SIMPLE BUTTON2
         botonEntrar.setType(MenuComponent.SIMPLE);
@@ -218,6 +253,11 @@ public class MultijugadorPanel extends JPanel {
         repaint();
     }
 
+    /**
+     * Dibuja los componentes del panel, incluyendo el fondo, los campos de entrada y los botones.
+     *
+     * @param g El contexto gráfico en el que se dibuja el panel.
+     */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -279,18 +319,38 @@ public class MultijugadorPanel extends JPanel {
         inputClave.setBounds(buttonX + desplazamientoDerecha, input3Y, buttonWidth - desplazamientoDerecha, tileSize);
     }
 
+    /**
+     * Devuelve la sala de juego asociada a este panel.
+     *
+     * @return La sala de juego.
+     */
     public Room getNewRoom() {
         return newRoom;
     }
 
+    /**
+     * Devuelve el cliente asociado a este panel.
+     *
+     * @return El cliente.
+     */
     public Client getCliente() {
         return cliente;
     }
 
+    /**
+     * Devuelve el campo de texto para el nombre de usuario.
+     *
+     * @return El campo de texto del nombre de usuario.
+     */
     public JTextField getInputUsuario() {
         return inputUsuario;
     }
 
+    /**
+     * Establece el cliente asociado a este panel.
+     *
+     * @param cliente El cliente a establecer.
+     */
     public void setCliente(Client cliente) {
         this.cliente = cliente;
     }

@@ -15,19 +15,39 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 
+/**
+ * Clase que representa el panel de opciones del juego de ajedrez.
+ * Este panel permite al usuario configurar la IP y el puerto del servidor
+ * y guardar estas configuraciones para su uso posterior.
+ */
 public class OptionPanel extends JPanel {
+    /** Fondo del panel de opciones. */
     private Background background;
-    private MenuComponent input1;
-    private MenuComponent input2;
-    private JTextField inputIp;
-    private JTextField inputPuerto;
-    private MenuComponent botonAceptar;
-    private MenuComponent botonSalir;
-    private SpriteManager spriteManager;
-    private JFrame parentFrame; // Referencia a la ventana principal
 
+    /** Componentes visuales para los títulos de los campos de entrada. */
+    private MenuComponent input1, input2;
+
+    /** Campos de texto para ingresar la IP y el puerto del servidor. */
+    private JTextField inputIp, inputPuerto;
+
+    /** Botones para aceptar la configuración y salir al menú principal. */
+    private MenuComponent botonAceptar, botonSalir;
+
+    /** Gestor de sprites utilizado para obtener las imágenes del panel. */
+    private SpriteManager spriteManager;
+
+    /** Referencia a la ventana principal del juego. */
+    private JFrame parentFrame;
+
+    /** Ruta del archivo de configuración del servidor. */
     private static final String SERVER_DATA_PATH = "src/res/serverdata.txt";
 
+    /**
+     * Constructor de la clase OptionPanel.
+     *
+     * @param spriteManager Gestor de sprites que proporciona las imágenes del panel.
+     * @param parentFrame   Ventana principal del juego.
+     */
     public OptionPanel(SpriteManager spriteManager, JFrame parentFrame) {
         this.spriteManager = spriteManager;
         this.parentFrame = parentFrame;
@@ -70,6 +90,10 @@ public class OptionPanel extends JPanel {
         });
     }
 
+    /**
+     * Carga los datos guardados del archivo de configuración del servidor.
+     * Si el archivo no existe, se crea con valores por defecto.
+     */
     public void cargarDatosGuardados() {
         Properties props = new Properties();
         Path path = Paths.get(SERVER_DATA_PATH);
@@ -110,8 +134,12 @@ public class OptionPanel extends JPanel {
         }
     }
 
-
-
+    /**
+     * Guarda la configuración de IP y puerto en el archivo de configuración.
+     *
+     * @param ip    La IP del servidor.
+     * @param puerto El puerto del servidor.
+     */
     private void guardarDatos(String ip, String puerto) {
         Properties props = new Properties();
         props.setProperty("ip", ip);
@@ -125,6 +153,9 @@ public class OptionPanel extends JPanel {
         }
     }
 
+    /**
+     * Valida y guarda la configuración ingresada por el usuario.
+     */
     private void aceptarConfiguracion() {
         String ip = inputIp.getText().trim();
         String puerto = inputPuerto.getText().trim();
@@ -148,6 +179,12 @@ public class OptionPanel extends JPanel {
         volverAMenuPrincipal();
     }
 
+    /**
+     * Maneja el evento de clic en los botones.
+     *
+     * @param mouseX Coordenada X del clic.
+     * @param mouseY Coordenada Y del clic.
+     */
     private void handleButtonPress(int mouseX, int mouseY) {
         // Tamaño de cada tile (64x64 píxeles)
         int tileSize = 64;
@@ -178,13 +215,24 @@ public class OptionPanel extends JPanel {
         repaint();
     }
 
-
+    /**
+     * Valida si una cadena es una dirección IP válida.
+     *
+     * @param ip La cadena a validar.
+     * @return true si es una IP válida, false en caso contrario.
+     */
     private boolean validarIP(String ip) {
         // Expresión regular para validar una dirección IPv4
         String regex = "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$";
         return ip.matches(regex);
     }
 
+    /**
+     * Valida si una cadena es un puerto válido.
+     *
+     * @param puerto La cadena a validar.
+     * @return true si es un puerto válido, false en caso contrario.
+     */
     private boolean validarPuerto(String puerto) {
         try {
             int puertoNum = Integer.parseInt(puerto);
@@ -194,6 +242,9 @@ public class OptionPanel extends JPanel {
         }
     }
 
+    /**
+     * Vuelve al menú principal.
+     */
     private void volverAMenuPrincipal() {
         // Cambiar al panel del menú principal
         MenuPanel menuPanel = new MenuPanel(spriteManager, parentFrame);
@@ -201,6 +252,9 @@ public class OptionPanel extends JPanel {
         parentFrame.revalidate(); // Actualizar la ventana
     }
 
+    /**
+     * Maneja el evento de liberación del clic en los botones.
+     */
     private void handleButtonRelease() {
         // Restaurar todos los botones a SIMPLE BUTTON2
         botonAceptar.setType(MenuComponent.SIMPLE);
@@ -210,6 +264,11 @@ public class OptionPanel extends JPanel {
         repaint();
     }
 
+    /**
+     * Dibuja los componentes del panel, incluyendo el fondo, los campos de entrada y los botones.
+     *
+     * @param g El contexto gráfico en el que se dibuja el panel.
+     */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);

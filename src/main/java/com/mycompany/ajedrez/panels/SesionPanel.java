@@ -9,17 +9,39 @@ import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
+/**
+ * Clase que representa un panel de sesión para ingresar el nombre de usuario,
+ * el nombre de la sala y la contraseña de la sala. Este panel incluye una imagen
+ * de fondo y campos de texto para la entrada de datos.
+ */
 public class SesionPanel extends JPanel {
+    /** Campo de texto para el nombre de usuario. */
     private JTextField campoUsuario;
-    private JTextField campoSala;
-    private JPasswordField campoContrasena; // Campo para la contraseña
-    private boolean datosConfirmados = false;
-    private BufferedImage imagenFondo; // Imagen de fondo
-    private JDialog dialogo; // Referencia al JDialog que contiene este panel
 
+    /** Campo de texto para el nombre de la sala. */
+    private JTextField campoSala;
+
+    /** Campo de texto para la contraseña de la sala. */
+    private JPasswordField campoContrasena;
+
+    /** Indica si los datos han sido confirmados por el usuario. */
+    private boolean datosConfirmados = false;
+
+    /** Imagen de fondo del panel. */
+    private BufferedImage imagenFondo;
+
+    /** Referencia al JDialog que contiene este panel. */
+    private JDialog dialogo;
+
+    /**
+     * Constructor de la clase SesionPanel.
+     *
+     * @param dialogo El JDialog que contiene este panel.
+     */
     public SesionPanel(JDialog dialogo) {
         this.dialogo = dialogo;
         setPreferredSize(new Dimension(768, 832));
+
         // Cargar la imagen de fondo
         try {
             imagenFondo = ImageIO.read(new File("src/res/fondo_sesion.jpg")); // Cambia la ruta según tu archivo
@@ -84,6 +106,11 @@ public class SesionPanel extends JPanel {
         }
     }
 
+    /**
+     * Dibuja la imagen de fondo en el panel.
+     *
+     * @param g El contexto gráfico en el que se dibuja el panel.
+     */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g); // Dibujar el panel correctamente
@@ -95,9 +122,10 @@ public class SesionPanel extends JPanel {
     }
 
     /**
-     * Devuelve los datos ingresados.
+     * Devuelve los datos ingresados por el usuario.
      *
-     * @return Un array con el nombre de usuario, el nombre de la sala y la contraseña, o null si no se confirmaron los datos.
+     * @return Un array con el nombre de usuario, el nombre de la sala y la contraseña,
+     *         o null si los datos no han sido confirmados.
      */
     public String[] obtenerDatos() {
         if (datosConfirmados) {

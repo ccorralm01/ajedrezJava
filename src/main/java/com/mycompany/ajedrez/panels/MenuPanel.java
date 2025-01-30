@@ -9,16 +9,42 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+/**
+ * Clase que representa el panel del menú principal del juego de ajedrez.
+ * Este panel contiene el fondo, el título y los botones para acceder a las diferentes
+ * funcionalidades del juego, como el modo multijugador, las opciones y salir del juego.
+ */
 public class MenuPanel extends JLayeredPane {
+    /** Fondo del menú principal. */
     private Background background;
+
+    /** Botón para acceder al modo multijugador. */
     private MenuComponent button1;
+
+    /** Botón para salir del juego. */
     private MenuComponent button2;
-    private MenuComponent button3; // Nuevo botón para opciones
+
+    /** Botón para acceder a las opciones del juego. */
+    private MenuComponent button3;
+
+    /** Gestor de sprites utilizado para obtener las imágenes del menú. */
     private SpriteManager spriteManager;
-    private JFrame parentFrame; // Referencia a la ventana principal
+
+    /** Referencia a la ventana principal del juego. */
+    private JFrame parentFrame;
+
+    /** Panel para el modo multijugador. */
     private MultijugadorPanel multijugadorPanel;
+
+    /** Panel para las opciones del juego. */
     private OptionPanel optionPanel;
 
+    /**
+     * Constructor de la clase MenuPanel.
+     *
+     * @param spriteManager Gestor de sprites que proporciona las imágenes del menú.
+     * @param parentFrame   Ventana principal del juego.
+     */
     public MenuPanel(SpriteManager spriteManager, JFrame parentFrame) {
         this.spriteManager = spriteManager;
         this.parentFrame = parentFrame; // Guardar la referencia a la ventana principal
@@ -126,6 +152,13 @@ public class MenuPanel extends JLayeredPane {
         });
     }
 
+    /**
+     * Crea un panel transparente para un botón del menú.
+     *
+     * @param button El botón que se va a dibujar en el panel.
+     * @param y      La posición vertical del panel.
+     * @return Un JPanel que contiene el botón.
+     */
     private JPanel createButtonPanel(MenuComponent button, int y) {
         JPanel panel = new JPanel() {
             @Override
@@ -142,12 +175,18 @@ public class MenuPanel extends JLayeredPane {
         return panel;
     }
 
+    /**
+     * Cambia el contenido de la ventana principal al panel de multijugador.
+     */
     private void cargarMultijugadorPanel() {
         // Cambiar el contenido de la ventana principal
         parentFrame.setContentPane(multijugadorPanel);
         parentFrame.revalidate(); // Actualizar la ventana
     }
 
+    /**
+     * Cambia el contenido de la ventana principal al panel de opciones.
+     */
     private void cargarOptionPanel() {
         // Cambiar el contenido de la ventana principal
         parentFrame.setContentPane(optionPanel);

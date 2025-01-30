@@ -14,11 +14,31 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+/**
+ * Clase que representa el panel principal del juego de ajedrez.
+ * Contiene el tablero, el HUD, el panel de capturas y un botón para volver al menú principal.
+ * Esta clase se encarga de inicializar y gestionar los componentes visuales y lógicos del juego.
+ */
 public class GamePanel extends JFrame {
-    private MenuComponent botonSalir; // Botón para volver al menú principal
+    /** Botón para volver al menú principal. */
+    private MenuComponent botonSalir;
+
+    /** Sala de juego asociada a esta partida. */
     private Room newRoom;
+
+    /** Controlador del juego que gestiona la lógica y la interacción. */
     private GameController gameController;
 
+    /**
+     * Constructor de la clase GamePanel.
+     * Inicializa los componentes del juego, como el tablero, el HUD, el panel de capturas y el botón de salida.
+     *
+     * @param usuario  Nombre del usuario que juega.
+     * @param versus   Nombre del oponente.
+     * @param servidor Dirección del servidor de juego.
+     * @param clave    Clave de la sala de juego.
+     * @param newRoom  Objeto Room que representa la sala de juego.
+     */
     public GamePanel(String usuario, String versus, String servidor, String clave, Room newRoom) {
         // Iniciar el juego con los datos ingresados
         SpriteManager spriteManager = new SpriteManager("src/res/Board.png", "src/res/pieces.png", "src/res/menu.png");
@@ -85,7 +105,7 @@ public class GamePanel extends JFrame {
         add(layeredPane);
 
         // Inicializar controlador y animación
-        gameController = new GameController(board, boardPanel, hudPanel, capturesPanel,spriteManager, newRoom, usuario);
+        gameController = new GameController(board, boardPanel, hudPanel, capturesPanel, spriteManager, newRoom, usuario);
         AnimationManager animationManager = new AnimationManager(hudPanel);
 
         // Configurar ventana
@@ -94,8 +114,6 @@ public class GamePanel extends JFrame {
         pack(); // Ajustar el tamaño de la ventana al contenido
         setLocationRelativeTo(null); // Centrar la ventana en la pantalla
         setVisible(true);
-
-        //gameController.setMyTurn(true);
 
         // Añadir un MouseListener para detectar clics en el botón "SALIR"
         botonSalirPanel.addMouseListener(new MouseAdapter() {
@@ -114,6 +132,10 @@ public class GamePanel extends JFrame {
         });
     }
 
+    /**
+     * Método para volver al menú principal.
+     * Cierra la ventana actual y abre una nueva ventana con el menú principal.
+     */
     private void volverAMenuPrincipal() {
         // Cerrar la ventana actual (GUI)
         this.dispose();
@@ -123,6 +145,11 @@ public class GamePanel extends JFrame {
         main.runMain();
     }
 
+    /**
+     * Devuelve el controlador del juego asociado a este panel.
+     *
+     * @return El controlador del juego.
+     */
     public GameController getGameController() {
         return gameController;
     }
