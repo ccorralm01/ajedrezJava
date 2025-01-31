@@ -170,6 +170,12 @@ public class MultijugadorPanel extends JPanel {
         jugadores.put(usuario, ""); // El color se asignará más tarde
         newRoom = new Room(servidor, clave, jugadores);
         cliente = new Client(ip, puerto);
+        // Crear un JOptionPane con el mensaje
+        JOptionPane optionPane = new JOptionPane("Sala creada, esperando jugadores...", JOptionPane.INFORMATION_MESSAGE);
+        JDialog dialog = optionPane.createDialog(this, "Información");
+        dialog.setModal(false); // Permite que el diálogo no bloquee la ejecución
+        dialog.setVisible(true);
+
         cliente.setMjPanel(this);
 
         // Iniciar cliente en un hilo separado
