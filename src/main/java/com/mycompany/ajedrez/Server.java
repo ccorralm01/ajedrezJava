@@ -1,4 +1,8 @@
-package com.mycompany.ajedrez.server;
+package com.mycompany.ajedrez;
+
+import com.mycompany.ajedrez.server.ClienteConectado;
+import com.mycompany.ajedrez.server.Movement;
+import com.mycompany.ajedrez.server.Room;
 
 import java.io.*;
 import java.net.*;
@@ -143,8 +147,6 @@ public class Server implements Runnable {
                             salidaJugadorSegundoTurno.writeObject(movimientoPrimerJugador);
                             System.out.println("Movimiento enviado al segundo jugador: " + movimientoPrimerJugador);
                         }
-
-
                     } else {
                         // Contraseña incorrecta
                         ObjectOutputStream salida = new ObjectOutputStream(socket.getOutputStream());
